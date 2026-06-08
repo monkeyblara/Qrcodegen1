@@ -1,0 +1,126 @@
+.product-list {
+  width: 100%;
+}
+
+.product-list h3 {
+  color: #333;
+  margin-bottom: 15px;
+  font-size: 1.2rem;
+  border-bottom: 2px solid #667eea;
+  padding-bottom: 10px;
+}
+
+.products-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.product-item {
+  background: white;
+  border: 2px solid #eee;
+  border-radius: 6px;
+  padding: 15px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.product-item:hover {
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+  transform: translateX(5px);
+}
+
+.product-item.selected {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-color: #667eea;
+  color: white;
+}
+
+.product-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 10px;
+}
+
+.product-item h4 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+.serial-number {
+  background: rgba(0, 0, 0, 0.1);
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.product-item.selected .serial-number {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+.product-item-details {
+  margin-bottom: 10px;
+}
+
+.product-item-details p {
+  margin: 5px 0;
+  font-size: 0.9rem;
+}
+
+.product-item-details strong {
+  color: #667eea;
+}
+
+.product-item.selected .product-item-details strong {
+  color: #ffd700;
+}
+
+.product-item-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.btn-edit,
+.btn-delete {
+  flex: 1;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.btn-edit {
+  background-color: #ed8936;
+  color: white;
+}
+
+.btn-edit:hover {
+  background-color: #dd6b20;
+}
+
+.btn-delete {
+  background-color: #f56565;
+  color: white;
+}
+
+.btn-delete:hover {
+  background-color: #e53e3e;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-size: 1.1rem;
+  background: #f9f9f9;
+  border-radius: 6px;
+  border: 2px dashed #ddd;
+}
