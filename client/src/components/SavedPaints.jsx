@@ -234,7 +234,7 @@ function SavedPaints() {
                 </button>
               </div>
             </div>
-          ))
+          )})
         )}
       </div>
     </div>

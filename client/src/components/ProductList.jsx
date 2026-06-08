@@ -57,7 +57,7 @@ function ProductList({ products, selectedProduct, onSelectProduct, onDeleteProdu
               </button>
             </div>
           </div>
-        ))}
+        )})}
       </div>
     </div>
   );
