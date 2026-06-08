@@ -111,7 +111,7 @@ function ProductForm({ onSubmit, initialData }) {
         >
           <option value="">Select a paint type</option>
           {paintTypes.map(type => (
-            <option key={type.id} value={type.name}>
+            <option key={type.id || type._id} value={type.name}>
               {type.name}
             </option>
           ))}

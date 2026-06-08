@@ -20,10 +20,13 @@ function SavedPaints() {
     fetchPaintTypes();
   }, []);
 
+  const normalizeId = (item) => item.id || item._id || (item._id ? item._id.toString() : undefined);
+  const normalizeItems = (items) => items.map(item => ({ ...item, id: normalizeId(item) }));
+
   const fetchSavedPaints = async () => {
     try {
       const response = await axios.get('/api/saved-paints');
-      setSavedPaints(response.data);
+      setSavedPaints(normalizeItems(response.data));
     } catch (error) {
       console.error('Error fetching saved paints:', error);
     }
@@ -32,7 +35,7 @@ function SavedPaints() {
   const fetchPaintTypes = async () => {
     try {
       const response = await axios.get('/api/paint-types');
-      setPaintTypes(response.data);
+      setPaintTypes(response.data.map(type => ({ ...type, id: normalizeId(type) })));
     } catch (error) {
       console.error('Error fetching paint types:', error);
     }
@@ -56,7 +59,8 @@ function SavedPaints() {
 
     try {
       if (editingPaint) {
-        await axios.put(`/api/saved-paints/${editingPaint.id}`, formData);
+        const paintId = editingPaint.id || editingPaint._id;
+        await axios.put(`/api/saved-paints/${paintId}`, formData);
       } else {
         await axios.post('/api/saved-paints', formData);
       }
@@ -197,19 +201,21 @@ function SavedPaints() {
         {savedPaints.length === 0 ? (
           <p className="empty-message">No saved paint templates yet</p>
         ) : (
-          savedPaints.map(paint => (
-            <div key={paint.id} className="paint-item">
-              <div className="paint-color-box" style={{ backgroundColor: paint.color }}></div>
-              <div className="paint-info">
-                <h4>{paint.name}</h4>
-                <p className="paint-details">{paint.brand} • {paint.paintType} • {paint.quantity}</p>
-              </div>
-              <div className="paint-actions">
-                <button 
-                  className={`btn-favorite ${paint.isFavorite ? 'active' : ''}`}
-                  onClick={() => handleToggleFavorite(paint.id)}
-                  title={paint.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
-                >
+          savedPaints.map(paint => {
+            const paintId = paint.id || paint._id;
+            return (
+              <div key={paintId} className="paint-item">
+                <div className="paint-color-box" style={{ backgroundColor: paint.color }}></div>
+                <div className="paint-info">
+                  <h4>{paint.name}</h4>
+                  <p className="paint-details">{paint.brand} • {paint.paintType} • {paint.quantity}</p>
+                </div>
+                <div className="paint-actions">
+                  <button 
+                    className={`btn-favorite ${paint.isFavorite ? 'active' : ''}`}
+                    onClick={() => handleToggleFavorite(paintId)}
+                    title={paint.isFavorite ? 'Remove from favorites' : 'Add to favorites'}
+                  >
                   {paint.isFavorite ? '⭐' : '☆'}
                 </button>
                 <button 
@@ -221,7 +227,7 @@ function SavedPaints() {
                 </button>
                 <button 
                   className="btn-delete"
-                  onClick={() => handleDelete(paint.id)}
+                  onClick={() => handleDelete(paintId)}
                   title="Delete"
                 >
                   🗑️

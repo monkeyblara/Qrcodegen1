@@ -20,6 +20,9 @@ function AppContent() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
 
+  const normalizeId = (item) => item.id || item._id || (item._id ? item._id.toString() : undefined);
+  const normalizeItems = (items) => items.map(item => ({ ...item, id: normalizeId(item) }));
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -27,7 +30,7 @@ function AppContent() {
   const fetchProducts = async () => {
     try {
       const response = await axios.get('/api/products');
-      setProducts(response.data);
+      setProducts(normalizeItems(response.data));
     } catch (error) {
       console.error('Error fetching products:', error);
     }

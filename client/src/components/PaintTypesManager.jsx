@@ -12,10 +12,12 @@ function PaintTypesManager() {
     fetchPaintTypes();
   }, []);
 
+  const normalizeId = (item) => item.id || item._id || (item._id ? item._id.toString() : undefined);
+
   const fetchPaintTypes = async () => {
     try {
       const response = await axios.get('/api/paint-types');
-      setPaintTypes(response.data);
+      setPaintTypes(response.data.map(type => ({ ...type, id: normalizeId(type) })));
       setError('');
     } catch (err) {
       console.error('Error fetching paint types:', err);
@@ -79,18 +81,21 @@ function PaintTypesManager() {
         {paintTypes.length === 0 ? (
           <p className="no-types">No paint types available</p>
         ) : (
-          paintTypes.map(type => (
-            <div key={type.id} className="type-item">
-              <span className="type-name">{type.name}</span>
-              <button 
-                className="btn-remove-type"
-                onClick={() => handleDeleteType(type.id, type.name)}
-                title="Delete this paint type"
-              >
-                ✕
-              </button>
-            </div>
-          ))
+          paintTypes.map(type => {
+            const typeId = type.id || type._id;
+            return (
+              <div key={typeId} className="type-item">
+                <span className="type-name">{type.name}</span>
+                <button 
+                  className="btn-remove-type"
+                  onClick={() => handleDeleteType(typeId, type.name)}
+                  title="Delete this paint type"
+                >
+                  ✕
+                </button>
+              </div>
+            );
+          })
         )}
       </div>
     </div>

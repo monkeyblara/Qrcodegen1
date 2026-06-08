@@ -14,12 +14,14 @@ function ProductList({ products, selectedProduct, onSelectProduct, onDeleteProdu
     <div className="product-list">
       <h3>Products ({products.length})</h3>
       <div className="products-container">
-        {products.map(product => (
-          <div
-            key={product.id}
-            className={`product-item ${selectedProduct?.id === product.id ? 'selected' : ''}`}
-            onClick={() => onSelectProduct(product)}
-          >
+        {products.map(product => {
+          const itemId = product.id || product._id;
+          return (
+            <div
+              key={itemId}
+              className={`product-item ${selectedProduct?.id === itemId ? 'selected' : ''}`}
+              onClick={() => onSelectProduct(product)}
+            >
             <div className="product-item-header">
               <h4>{product.productName}</h4>
               <span className="serial-number">{product.serialNumber}</span>
@@ -47,7 +49,7 @@ function ProductList({ products, selectedProduct, onSelectProduct, onDeleteProdu
                 className="btn-delete"
                 onClick={(e) => {
                   e.stopPropagation();
-                  onDeleteProduct(product.id);
+                  onDeleteProduct(itemId);
                 }}
                 title="Delete product"
               >
