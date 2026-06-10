@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import QRCode from 'react-qr-code';
 import axios from 'axios';
 import './ChemicalDetails.css';
 
@@ -28,77 +27,7 @@ function ChemicalDetails({ chemicalId }) {
     }
   };
 
-  const handleDownload = (format) => {
-    const qrElement = document.querySelector('#qr-code-ref');
-    const svg = qrElement.querySelector('svg');
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    const image = new Image();
 
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 256;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      const dataUrl = canvas.toDataURL(`image/${format}`);
-      const link = document.createElement('a');
-      link.href = dataUrl;
-      link.download = `${chemical.serialNumber}.${format}`;
-      link.click();
-    };
-
-    image.src = url;
-  };
-
-  const handlePrint = () => {
-    const qrElement = document.querySelector('#qr-code-ref');
-    const svg = qrElement.querySelector('svg');
-    const serializer = new XMLSerializer();
-    const svgString = serializer.serializeToString(svg);
-    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
-    const url = URL.createObjectURL(svgBlob);
-    const image = new Image();
-
-    image.onload = () => {
-      const canvas = document.createElement('canvas');
-      canvas.width = 256;
-      canvas.height = 256;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#ffffff';
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-      URL.revokeObjectURL(url);
-      const imgData = canvas.toDataURL('image/png');
-
-      const printWindow = window.open('', '', 'width=800,height=600');
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Print QR Code - ${chemical.serialNumber}</title>
-          </head>
-          <body style="display: flex; flex-direction: column; align-items: center; padding: 20px;">
-            <h2>${chemical.chemicalName}</h2>
-            <p><strong>Serial Number:</strong> ${chemical.serialNumber}</p>
-            <p><strong>Manufacturer:</strong> ${chemical.manufacturer}</p>
-            <img src="${imgData}" />
-            <p style="margin-top: 20px; text-align: center;">
-              <strong>Scan this QR code to view chemical details</strong>
-            </p>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    };
-
-    image.src = url;
-  };
 
   if (loading) {
     return <div className="chemical-details-loading">Loading chemical details...</div>;
@@ -117,7 +46,7 @@ function ChemicalDetails({ chemicalId }) {
   return (
     <div className="chemical-details-page">
       <div className="chemical-details-container">
-        <div className="details-section">
+        <div className="details-section full-width">
           <h2>🧪 Chemical Details</h2>
           
           <div className="detail-card">
@@ -154,32 +83,10 @@ function ChemicalDetails({ chemicalId }) {
               <span className="detail-value">{chemical.expiryDate}</span>
             </div>
           </div>
-        </div>
 
-        <div className="qr-section">
-          <h2>QR Code</h2>
-          <div id="qr-code-ref" className="qr-code-container">
-            <QRCode 
-              value={`${window.location.origin}/chemical/${chemical.id}`}
-              size={256}
-              bgColor="#ffffff"
-              fgColor="#000000"
-              level="H"
-            />
-          </div>
-          
-          <div className="qr-actions">
-            <button className="btn btn-secondary" onClick={() => handleDownload('png')}>
-              📥 Download PNG
-            </button>
-            <button className="btn btn-secondary" onClick={() => handleDownload('jpg')}>
-              📥 Download JPG
-            </button>
-            <button className="btn btn-secondary" onClick={handlePrint}>
-              🖨️ Print
-            </button>
-            <a href="/" className="btn btn-secondary">
-              ← Back
+          <div className="back-button">
+            <a href="/" className="btn btn-primary">
+              ← Back to Home
             </a>
           </div>
         </div>
