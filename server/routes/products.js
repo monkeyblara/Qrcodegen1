@@ -99,26 +99,28 @@ router.delete('/:id', async (req, res) => {
   }
 });
 
-// Save QR Code
+// Generate QR Code
 router.post('/:id/qr', async (req, res) => {
   try {
-    const { qrCodeData } = req.body;
-
-    if (!qrCodeData) {
-      return res.status(400).json({ error: 'QR code data is required' });
-    }
-
-    const product = await Product.findByIdAndUpdate(
-      req.params.id,
-      { qrCode: qrCodeData },
-      { new: true }
-    );
-
+    const product = await Product.findById(req.params.id);
     if (!product) {
       return res.status(404).json({ error: 'Product not found' });
     }
 
-    res.json({ message: 'QR code saved successfully' });
+    const qrData = JSON.stringify({
+      type: 'Product',
+      serialNumber: product.serialNumber,
+      productName: product.productName,
+      brand: product.brand,
+      paintType: product.paintType,
+      quantity: product.quantity,
+      expiryDate: product.expiryDate
+    });
+
+    product.qrCode = qrData;
+    await product.save();
+
+    res.json({ success: true, qrCode: product.qrCode });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
