@@ -48,14 +48,33 @@ const paintTypeSchema = new mongoose.Schema({
   createdAt: { type: Date, default: Date.now }
 });
 
+// Chemicals Schema
+const chemicalSchema = new mongoose.Schema({
+  serialNumber: { type: String, unique: true, required: true },
+  chemicalName: { type: String, required: true },
+  manufacturer: { type: String, required: true },
+  chemicalType: { type: String, required: true },
+  quantity: { type: String, required: true },
+  unit: { type: String, required: true },
+  hazardLevel: { type: String, enum: ['Low', 'Medium', 'High'], default: 'Medium' },
+  storageLocation: { type: String, required: true },
+  expiryDate: { type: String, required: true },
+  qrCode: String,
+  isFavorite: { type: Boolean, default: false },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Models
 const Product = mongoose.model('Product', productSchema);
 const SavedPaint = mongoose.model('SavedPaint', savedPaintSchema);
 const PaintType = mongoose.model('PaintType', paintTypeSchema);
+const Chemical = mongoose.model('Chemical', chemicalSchema);
 
 module.exports = {
   connectDB,
   Product,
   SavedPaint,
-  PaintType
+  PaintType,
+  Chemical
 };

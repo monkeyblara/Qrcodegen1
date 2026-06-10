@@ -6,6 +6,7 @@ import ProductList from './components/ProductList';
 import ProductDetails from './components/ProductDetails';
 import SavedPaints from './components/SavedPaints';
 import PaintTypesManager from './components/PaintTypesManager';
+import ChemicalsList from './components/ChemicalsList';
 import QRCode from 'react-qr-code';
 import axios from 'axios';
 
@@ -19,6 +20,7 @@ function AppContent() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
+  const [activeTab, setActiveTab] = useState('products');
 
   const normalizeId = (item) => item.id || item._id || (item._id ? item._id.toString() : undefined);
   const normalizeItems = (items) => items.map(item => ({ ...item, id: normalizeId(item) }));
@@ -77,96 +79,146 @@ function AppContent() {
         <div className="header-content">
           <img src="/monash-logo.png" alt="Monash Logo" className="app-logo" />
           <div className="header-text">
-            <h1>🎨 Paint QR Code Generator System</h1>
-            <p>Generate and manage QR codes for your paint products</p>
+            <h1>🎨 Paint & Chemicals QR Code Generator System</h1>
+            <p>Generate and manage QR codes for your paint products and chemicals</p>
           </div>
         </div>
       </header>
 
       <footer className="app-footer">
-        <p>© 2026 Munashe Mudondo. All rights reserved. | Paint QR Code Generator System</p>
+        <p>© 2026 Munashe Mudondo. All rights reserved. | Paint & Chemicals QR Code Generator System</p>
       </footer>
 
       <div className="app-container">
-        <div className="left-panel">
-          <div className="action-buttons">
-            <button 
-              className="btn btn-primary"
-              onClick={() => {
-                setEditingProduct(null);
-                setShowForm(!showForm);
-              }}
-            >
-              {showForm ? 'Cancel' : '+ Add New Product'}
-            </button>
-          </div>
-
-          {showForm && (
-            <ProductForm 
-              onSubmit={editingProduct ? 
-                (data) => handleUpdateProduct(editingProduct.id, data) :
-                handleAddProduct
-              }
-              initialData={editingProduct}
-            />
-          )}
-
-          <ProductList 
-            products={products}
-            selectedProduct={selectedProduct}
-            onSelectProduct={setSelectedProduct}
-            onDeleteProduct={handleDeleteProduct}
-            onEditProduct={(product) => {
-              setEditingProduct(product);
-              setShowForm(true);
+        <div className="navigation-tabs">
+          <button 
+            className={`tab-button ${activeTab === 'products' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('products');
+              setShowForm(false);
             }}
-          />
+          >
+            🎨 Products
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'chemicals' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('chemicals');
+              setShowForm(false);
+            }}
+          >
+            🧪 Chemicals
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'saved' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('saved');
+              setShowForm(false);
+            }}
+          >
+            💾 Saved
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'types' ? 'active' : ''}`}
+            onClick={() => {
+              setActiveTab('types');
+              setShowForm(false);
+            }}
+          >
+            📋 Types
+          </button>
+        </div>
 
+        {activeTab === 'products' && (
+          <div className="left-panel">
+            <div className="action-buttons">
+              <button 
+                className="btn btn-primary"
+                onClick={() => {
+                  setEditingProduct(null);
+                  setShowForm(!showForm);
+                }}
+              >
+                {showForm ? 'Cancel' : '+ Add New Product'}
+              </button>
+            </div>
+
+            {showForm && (
+              <ProductForm 
+                onSubmit={editingProduct ? 
+                  (data) => handleUpdateProduct(editingProduct.id, data) :
+                  handleAddProduct
+                }
+                initialData={editingProduct}
+              />
+            )}
+
+            <ProductList 
+              products={products}
+              selectedProduct={selectedProduct}
+              onSelectProduct={setSelectedProduct}
+              onDeleteProduct={handleDeleteProduct}
+              onEditProduct={(product) => {
+                setEditingProduct(product);
+                setShowForm(true);
+              }}
+            />
+
+            <div className="right-panel">
+              {selectedProduct ? (
+                <div className="product-details">
+                  <h2>Product Details & QR Code</h2>
+                  <div className="details-container">
+                    <div className="detail-row">
+                      <span className="label">Serial Number:</span>
+                      <span className="value">{selectedProduct.serialNumber}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="label">Product Name:</span>
+                      <span className="value">{selectedProduct.productName}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="label">Brand:</span>
+                      <span className="value">{selectedProduct.brand}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="label">Paint Type:</span>
+                      <span className="value">{selectedProduct.paintType}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="label">Quantity:</span>
+                      <span className="value">{selectedProduct.quantity}</span>
+                    </div>
+                    <div className="detail-row">
+                      <span className="label">Expiry Date:</span>
+                      <span className="value">{selectedProduct.expiryDate}</span>
+                    </div>
+                  </div>
+
+                  <div id="qr-code-section" className="qr-section">
+                    <QRCodeDisplay product={selectedProduct} />
+                  </div>
+                </div>
+              ) : (
+                <div className="no-selection">
+                  <p>Select a product to view details and generate QR code</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {activeTab === 'chemicals' && (
+          <ChemicalsList />
+        )}
+
+        {activeTab === 'saved' && (
           <SavedPaints />
+        )}
+
+        {activeTab === 'types' && (
           <PaintTypesManager />
-        </div>
-
-        <div className="right-panel">
-          {selectedProduct ? (
-            <div className="product-details">
-              <h2>Product Details & QR Code</h2>
-              <div className="details-container">
-                <div className="detail-row">
-                  <span className="label">Serial Number:</span>
-                  <span className="value">{selectedProduct.serialNumber}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="label">Product Name:</span>
-                  <span className="value">{selectedProduct.productName}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="label">Brand:</span>
-                  <span className="value">{selectedProduct.brand}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="label">Paint Type:</span>
-                  <span className="value">{selectedProduct.paintType}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="label">Quantity:</span>
-                  <span className="value">{selectedProduct.quantity}</span>
-                </div>
-                <div className="detail-row">
-                  <span className="label">Expiry Date:</span>
-                  <span className="value">{selectedProduct.expiryDate}</span>
-                </div>
-              </div>
-
-              <div id="qr-code-section" className="qr-section">
-                <QRCodeDisplay product={selectedProduct} />
-              </div>
-            </div>
-          ) : (
-            <div className="no-selection">
-              <p>Select a product to view details and generate QR code</p>
-            </div>
-          )}
-        </div>
+        )}
       </div>
     </div>
   );

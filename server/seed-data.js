@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 require('dotenv').config();
 
-const { connectDB, Product, SavedPaint, PaintType } = require('./models');
+const { connectDB, Product, SavedPaint, PaintType, Chemical } = require('./models');
 
 const seedData = async () => {
   try {
@@ -142,14 +142,82 @@ const seedData = async () => {
 
     console.log(`✅ Seeded ${createdSavedPaints.length} sample saved paints`);
 
+    // Seed Sample Chemicals
+    const sampleChemicals = [
+      {
+        serialNumber: 'CHEM-' + Date.now() + '-01',
+        chemicalName: 'Sodium Hydroxide',
+        manufacturer: 'Sigma-Aldrich',
+        chemicalType: 'Base',
+        quantity: '500',
+        unit: 'g',
+        hazardLevel: 'High',
+        storageLocation: 'Cabinet A, Shelf 1',
+        expiryDate: '2026-12-31',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        serialNumber: 'CHEM-' + (Date.now() + 1) + '-02',
+        chemicalName: 'Acetic Acid',
+        manufacturer: 'Acros Organics',
+        chemicalType: 'Acid',
+        quantity: '1',
+        unit: 'L',
+        hazardLevel: 'Medium',
+        storageLocation: 'Cabinet B, Shelf 2',
+        expiryDate: '2025-06-30',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        serialNumber: 'CHEM-' + (Date.now() + 2) + '-03',
+        chemicalName: 'Dimethyl Sulfoxide',
+        manufacturer: 'Fisher Scientific',
+        chemicalType: 'Solvent',
+        quantity: '250',
+        unit: 'mL',
+        hazardLevel: 'Medium',
+        storageLocation: 'Cabinet A, Shelf 3',
+        expiryDate: '2026-09-15',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        serialNumber: 'CHEM-' + (Date.now() + 3) + '-04',
+        chemicalName: 'Ethanol',
+        manufacturer: 'Carlo Erba',
+        chemicalType: 'Solvent',
+        quantity: '500',
+        unit: 'mL',
+        hazardLevel: 'Medium',
+        storageLocation: 'Cabinet C, Shelf 1',
+        expiryDate: '2025-03-30',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ];
+
+    const createdChemicals = await Chemical.insertMany(sampleChemicals, { ordered: false }).catch(err => {
+      if (err.code === 11000) {
+        console.log('⚠️  Some chemicals already exist, skipping duplicates');
+        return [];
+      }
+      throw err;
+    });
+
+    console.log(`✅ Seeded ${createdChemicals.length} sample chemicals`);
+
     console.log('\n🎉 Seed data completed successfully!');
     console.log('\n📊 Database Summary:');
     const paintTypeCount = await PaintType.countDocuments();
     const productCount = await Product.countDocuments();
     const savedPaintCount = await SavedPaint.countDocuments();
+    const chemicalCount = await Chemical.countDocuments();
     console.log(`   - Paint Types: ${paintTypeCount}`);
     console.log(`   - Products: ${productCount}`);
     console.log(`   - Saved Paints: ${savedPaintCount}`);
+    console.log(`   - Chemicals: ${chemicalCount}`);
 
     process.exit(0);
   } catch (error) {

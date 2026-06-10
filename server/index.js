@@ -9,6 +9,7 @@ const { connectDB } = require('./models');
 const productRoutes = require('./routes/products');
 const savedPaintsRoutes = require('./routes/savedPaints');
 const paintTypesRoutes = require('./routes/paintTypes');
+const chemicalRoutes = require('./routes/chemicals');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -25,6 +26,7 @@ connectDB();
 app.use('/api/products', productRoutes);
 app.use('/api/saved-paints', savedPaintsRoutes);
 app.use('/api/paint-types', paintTypesRoutes);
+app.use('/api/chemicals', chemicalRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
