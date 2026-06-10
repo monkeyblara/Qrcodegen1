@@ -110,7 +110,7 @@ router.post('/:id/qr', async (req, res) => {
       return res.status(404).json({ error: 'Chemical not found' });
     }
 
-    const qrData = {
+    const qrData = JSON.stringify({
       type: 'Chemical',
       serialNumber: chemical.serialNumber,
       chemicalName: chemical.chemicalName,
@@ -121,9 +121,9 @@ router.post('/:id/qr', async (req, res) => {
       hazardLevel: chemical.hazardLevel,
       storageLocation: chemical.storageLocation,
       expiryDate: chemical.expiryDate
-    };
+    });
 
-    chemical.qrCode = JSON.stringify(qrData);
+    chemical.qrCode = qrData;
     await chemical.save();
 
     res.json({ success: true, qrCode: chemical.qrCode });

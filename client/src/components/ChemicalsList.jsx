@@ -65,7 +65,7 @@ function ChemicalsList() {
     try {
       await axios.post(`/api/chemicals/${id}/qr`);
       fetchChemicals();
-      alert('QR Code generated successfully!');
+      alert('QR Code generated successfully! Scan it to view chemical details.');
     } catch (error) {
       console.error('Error generating QR code:', error);
       alert('Error generating QR code');
@@ -169,7 +169,10 @@ function ChemicalsList() {
 
               {chemical.qrCode && (
                 <div className="qr-container">
-                  <QRCode value={chemical.qrCode} size={100} />
+                  <QRCode 
+                    value={`${window.location.origin}/chemical/${chemical.id}`}
+                    size={100} 
+                  />
                 </div>
               )}
 
