@@ -259,7 +259,7 @@ function SavedPaints() {
 
         <div className="right-panel">
           {selectedPaint ? (
-            <div className="paint-details">
+            <div className="paint-details-panel">
               <h2>Paint Details & QR Code</h2>
               <div className="details-container">
                 <div className="detail-row">

@@ -41,13 +41,13 @@
   border: 1px solid #e0e0e0;
 }
 
-.paint-details {
+.paint-details-panel {
   display: flex;
   flex-direction: column;
   gap: 15px;
 }
 
-.paint-details h2 {
+.paint-details-panel h2 {
   margin: 0 0 10px 0;
   color: #333;
   font-size: 1.1rem;
