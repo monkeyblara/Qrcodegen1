@@ -79,6 +79,17 @@ function AppContent() {
     }
   };
 
+  const handleGenerateQR = async (id) => {
+    try {
+      await axios.post(`/api/products/${id}/qr`);
+      fetchProducts();
+      alert('QR Code generated successfully! Scan it to view product details.');
+    } catch (error) {
+      console.error('Error generating QR code:', error);
+      alert('Error generating QR code');
+    }
+  };
+
   return (
     <div className="app">
       <header className="app-header">
@@ -168,6 +179,7 @@ function AppContent() {
                 setEditingProduct(product);
                 setShowForm(true);
               }}
+              onGenerateQR={handleGenerateQR}
             />
 
             <div className="right-panel">

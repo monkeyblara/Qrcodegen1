@@ -85,6 +85,7 @@
   margin-top: 10px;
 }
 
+.btn-qr,
 .btn-edit,
 .btn-delete {
   flex: 1;
@@ -95,6 +96,16 @@
   font-size: 0.85rem;
   font-weight: 600;
   transition: all 0.2s ease;
+}
+
+.btn-qr {
+  background-color: #667eea;
+  color: white;
+}
+
+.btn-qr:hover {
+  background-color: #5568d3;
+  transform: scale(1.05);
 }
 
 .btn-edit {
@@ -113,6 +124,16 @@
 
 .btn-delete:hover {
   background-color: #e53e3e;
+}
+
+.qr-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+  background: #f9f9f9;
+  border-radius: 4px;
+  margin: 10px 0;
 }
 
 .empty-state {

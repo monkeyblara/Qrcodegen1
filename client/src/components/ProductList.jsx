@@ -1,7 +1,8 @@
 import React from 'react';
+import QRCode from 'react-qr-code';
 import './ProductList.css';
 
-function ProductList({ products, selectedProduct, onSelectProduct, onDeleteProduct, onEditProduct }) {
+function ProductList({ products, selectedProduct, onSelectProduct, onDeleteProduct, onEditProduct, onGenerateQR }) {
   if (products.length === 0) {
     return (
       <div className="empty-state">
@@ -34,7 +35,26 @@ function ProductList({ products, selectedProduct, onSelectProduct, onDeleteProdu
               <p><strong>Expiry:</strong> {new Date(product.expiryDate).toLocaleDateString()}</p>
             </div>
 
+            {product.qrCode && (
+              <div className="qr-container">
+                <QRCode 
+                  value={`${window.location.origin}/product/${itemId}`}
+                  size={100} 
+                />
+              </div>
+            )}
+
             <div className="product-item-actions">
+              <button
+                className="btn-qr"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onGenerateQR(itemId);
+                }}
+                title="Generate QR Code"
+              >
+                📱 QR
+              </button>
               <button
                 className="btn-edit"
                 onClick={(e) => {
