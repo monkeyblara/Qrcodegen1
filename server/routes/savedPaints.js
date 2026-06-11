@@ -12,6 +12,19 @@ router.get('/', async (req, res) => {
   }
 });
 
+// Get a single saved paint by ID
+router.get('/:id', async (req, res) => {
+  try {
+    const paint = await SavedPaint.findById(req.params.id);
+    if (!paint) {
+      return res.status(404).json({ error: 'Paint not found' });
+    }
+    res.json(paint);
+  } catch (error) {
+    return res.status(500).json({ error: 'Failed to fetch paint' });
+  }
+});
+
 // Add a saved paint
 router.post('/', async (req, res) => {
   try {

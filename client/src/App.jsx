@@ -5,6 +5,7 @@ import ProductForm from './components/ProductForm';
 import ProductList from './components/ProductList';
 import ProductDetails from './components/ProductDetails';
 import SavedPaints from './components/SavedPaints';
+import PaintDetails from './components/PaintDetails';
 import PaintTypesManager from './components/PaintTypesManager';
 import ChemicalsList from './components/ChemicalsList';
 import ChemicalDetails from './components/ChemicalDetails';
@@ -14,6 +15,11 @@ import axios from 'axios';
 function ProductDetailsPage() {
   const { id } = useParams();
   return <ProductDetails productId={id} />;
+}
+
+function PaintDetailsPage() {
+  const { id } = useParams();
+  return <PaintDetails paintId={id} />;
 }
 
 function ChemicalDetailsPage() {
@@ -345,6 +351,7 @@ function App() {
     <Router>
       <Routes>
         <Route path="/product/:id" element={<ProductDetailsPage />} />
+        <Route path="/paint/:id" element={<PaintDetailsPage />} />
         <Route path="/chemical/:id" element={<ChemicalDetailsPage />} />
         <Route path="/" element={<AppContent />} />
       </Routes>
