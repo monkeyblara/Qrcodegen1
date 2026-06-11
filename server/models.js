@@ -65,16 +65,28 @@ const chemicalSchema = new mongoose.Schema({
   updatedAt: { type: Date, default: Date.now }
 });
 
+// User Schema (Admin only)
+const userSchema = new mongoose.Schema({
+  username: { type: String, unique: true, required: true },
+  email: { type: String, unique: true, required: true },
+  password: { type: String, required: true },
+  role: { type: String, enum: ['admin'], default: 'admin' },
+  createdAt: { type: Date, default: Date.now },
+  updatedAt: { type: Date, default: Date.now }
+});
+
 // Models
 const Product = mongoose.model('Product', productSchema);
 const SavedPaint = mongoose.model('SavedPaint', savedPaintSchema);
 const PaintType = mongoose.model('PaintType', paintTypeSchema);
 const Chemical = mongoose.model('Chemical', chemicalSchema);
+const User = mongoose.model('User', userSchema);
 
 module.exports = {
   connectDB,
   Product,
   SavedPaint,
   PaintType,
-  Chemical
+  Chemical,
+  User
 };

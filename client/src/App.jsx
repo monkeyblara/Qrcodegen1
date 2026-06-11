@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, useParams } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import './App.css';
+import Login from './components/Login';
 import ProductForm from './components/ProductForm';
 import ProductList from './components/ProductList';
 import ProductDetails from './components/ProductDetails';
@@ -33,9 +34,18 @@ function AppContent() {
   const [showForm, setShowForm] = useState(false);
   const [editingProduct, setEditingProduct] = useState(null);
   const [activeTab, setActiveTab] = useState('products');
+  const navigate = useNavigate();
 
   const normalizeId = (item) => item.id || item._id || (item._id ? item._id.toString() : undefined);
   const normalizeItems = (items) => items.map(item => ({ ...item, id: normalizeId(item) }));
+
+  // Add auth token to axios headers
+  useEffect(() => {
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    }
+  }, []);
 
   useEffect(() => {
     fetchProducts();
@@ -47,7 +57,19 @@ function AppContent() {
       setProducts(normalizeItems(response.data));
     } catch (error) {
       console.error('Error fetching products:', error);
+      if (error.response?.status === 401) {
+        // Token invalid, logout
+        handleLogout();
+      }
     }
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
+    delete axios.defaults.headers.common['Authorization'];
+    navigate('/');
+    window.location.reload();
   };
 
   const handleAddProduct = async (productData) => {
@@ -105,6 +127,9 @@ function AppContent() {
             <h1>🎨 Paint & Chemicals QR Code Generator System</h1>
             <p>Generate and manage QR codes for your paint products and chemicals</p>
           </div>
+          <button className="btn-logout" onClick={handleLogout}>
+            🚪 Logout
+          </button>
         </div>
       </header>
 
@@ -347,13 +372,60 @@ function QRCodeDisplay({ product }) {
 }
 
 function App() {
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Check if token exists in localStorage
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      // Verify token is still valid
+      axios.post('/api/auth/verify', { token })
+        .then(() => {
+          setIsAuthenticated(true);
+          axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        })
+        .catch(() => {
+          // Token invalid, clear it
+          localStorage.removeItem('authToken');
+          localStorage.removeItem('user');
+          setIsAuthenticated(false);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    } else {
+      setLoading(false);
+    }
+  }, []);
+
+  const handleLoginSuccess = (token) => {
+    localStorage.setItem('authToken', token);
+    axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+    setIsAuthenticated(true);
+  };
+
+  if (loading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
+        <p>Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <Router>
       <Routes>
+        {/* Public QR detail pages - no auth required */}
         <Route path="/product/:id" element={<ProductDetailsPage />} />
         <Route path="/paint/:id" element={<PaintDetailsPage />} />
         <Route path="/chemical/:id" element={<ChemicalDetailsPage />} />
-        <Route path="/" element={<AppContent />} />
+
+        {/* Protected routes or login */}
+        <Route 
+          path="/" 
+          element={isAuthenticated ? <AppContent /> : <Login onLoginSuccess={handleLoginSuccess} />} 
+        />
       </Routes>
     </Router>
   );

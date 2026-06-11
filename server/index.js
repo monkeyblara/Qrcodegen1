@@ -6,6 +6,8 @@ const path = require('path');
 require('dotenv').config();
 
 const { connectDB } = require('./models');
+const authRoutes = require('./routes/auth');
+const { authenticateToken } = require('./middleware/auth');
 const productRoutes = require('./routes/products');
 const savedPaintsRoutes = require('./routes/savedPaints');
 const paintTypesRoutes = require('./routes/paintTypes');
@@ -22,16 +24,19 @@ app.use(bodyParser.urlencoded({ limit: '50mb', extended: true }));
 // Connect to MongoDB
 connectDB();
 
-// Routes
-app.use('/api/products', productRoutes);
-app.use('/api/saved-paints', savedPaintsRoutes);
-app.use('/api/paint-types', paintTypesRoutes);
-app.use('/api/chemicals', chemicalRoutes);
+// Public Routes (No auth required)
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'Server is running' });
 });
+
+// Protected Routes (Auth required)
+app.use('/api/products', authenticateToken, productRoutes);
+app.use('/api/saved-paints', authenticateToken, savedPaintsRoutes);
+app.use('/api/paint-types', authenticateToken, paintTypesRoutes);
+app.use('/api/chemicals', authenticateToken, chemicalRoutes);
 
 const clientDistPath = path.join(__dirname, '../client/dist');
 if (fs.existsSync(clientDistPath)) {
