@@ -85,7 +85,10 @@ function ChemicalDetails({ chemicalId }) {
           </div>
 
           <div className="back-button">
-            <a href="/" className="btn btn-primary">
+            <button onClick={() => window.print()} className="btn btn-primary">
+              🖨️ Print
+            </button>
+            <a href="/" className="btn btn-secondary">
               ← Back to Home
             </a>
           </div>
