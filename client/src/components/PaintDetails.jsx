@@ -86,9 +86,6 @@ function PaintDetails({ paintId }) {
           <button onClick={() => window.print()} className="btn-print">
             🖨️ Print
           </button>
-          <button onClick={() => window.history.back()} className="btn-back">
-            ← Go Back
-          </button>
         </div>
       </div>
     </div>
