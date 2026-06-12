@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "description": "QR Code Generator System for Paint Products",
   "author": "Munashe Mudondo",
-  "main": "server/index.js",
+  "main": "public/main.js",
+  "homepage": "./",
   "engines": {
     "node": ">=18.0.0"
   },
@@ -15,6 +16,13 @@
     "build": "cd client && npm run build",
     "postinstall": "cd client && npm install --include=dev && npm run build",
     "heroku-postbuild": "cd client && npm install --include=dev && npm run build",
+    "electron": "electron .",
+    "electron-dev": "concurrently \"npm run build\" \"wait-on http://localhost:5173 && electron . --dev\" ",
+    "electron-build": "npm run build && electron-builder --win --publish never",
+    "electron-build-publish": "npm run build && electron-builder --win",
+    "electron-package": "npm run build && electron-packager . \"Paint QR Generator\" --platform=win32 --arch=x64 --out=dist/packaged --overwrite --icon=assets/icon.ico --prune=true",
+    "generate-icon": "node scripts/generate-icon.js",
+    "package-with-icon": "npm run generate-icon && npm run electron-package",
     "seed": "node server/seed-data.js",
     "migrate": "node server/migrate-to-mongodb.js",
     "test:api": "node server/test-api.js"
@@ -24,14 +32,59 @@
     "body-parser": "^1.20.2",
     "cors": "^2.8.5",
     "dotenv": "^16.3.1",
+    "electron-squirrel-startup": "^1.0.0",
     "express": "^4.18.2",
     "jsonwebtoken": "^9.0.3",
     "mongoose": "^7.5.0",
-    "sqlite3": "^5.1.6",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
     "concurrently": "^8.2.0",
-    "nodemon": "^3.0.1"
+    "electron": "^29.0.0",
+    "electron-builder": "^24.6.4",
+    "electron-packager": "^17.1.0",
+    "jimp": "^0.22.10",
+    "nodemon": "^3.0.1",
+    "png-to-ico": "^3.0.1",
+    "wait-on": "^7.0.1"
+  },
+  "build": {
+    "appId": "com.paintqr.app",
+    "productName": "Paint QR Generator",
+    "files": [
+      "public/main.js",
+      "public/preload.js",
+      "server/**/*",
+      "client/dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "directories": {
+      "buildResources": "assets"
+    },
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64",
+            "ia32"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Paint QR Generator"
+    }
   }
 }

@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import QRCode from 'react-qr-code';
 import axios from 'axios';
+import { getAppOrigin } from '../utils/getAppOrigin';
 import ChemicalForm from './ChemicalForm';
 import './ChemicalsList.css';
 
@@ -79,6 +80,54 @@ function ChemicalsList() {
     } catch (error) {
       console.error('Error toggling favorite:', error);
     }
+  };
+
+  const handlePrint = (chemical) => {
+    const itemId = chemical.id;
+    const qrElement = document.querySelector(`#qr-code-${itemId} svg`);
+    if (!qrElement) {
+      alert('Please generate a QR code first.');
+      return;
+    }
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(qrElement);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const image = new Image();
+
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      const imgData = canvas.toDataURL('image/png');
+
+      const printWindow = window.open('', '', 'width=800,height=600');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print QR Code - ${chemical.serialNumber}</title>
+          </head>
+          <body style="display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: Arial, sans-serif;">
+            <h2 style="margin-bottom: 10px;">${chemical.chemicalName}</h2>
+            <p style="margin: 4px 0;"><strong>Serial Number:</strong> ${chemical.serialNumber}</p>
+            <img src="${imgData}" alt="QR Code" style="margin: 20px 0; width: 240px; height: 240px;" />
+            <p style="margin-top: 20px; text-align: center;">
+              <strong>Scan this QR code to view chemical details</strong>
+            </p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    };
+
+    image.src = url;
   };
 
   const filteredChemicals = chemicals.filter(c => {
@@ -168,15 +217,22 @@ function ChemicalsList() {
               </div>
 
               {chemical.qrCode && (
-                <div className="qr-container">
+                <div id={`qr-code-${chemical.id}`} className="qr-container">
                   <QRCode 
-                    value={`${window.location.origin}/chemical/${chemical.id}`}
+                    value={`${getAppOrigin()}/chemical/${chemical.id}`}
                     size={100} 
                   />
                 </div>
               )}
 
               <div className="chemical-actions">
+                <button
+                  className="btn-sm btn-print"
+                  onClick={() => handlePrint(chemical)}
+                  title={chemical.qrCode ? 'Print QR Code' : 'Generate QR code first'}
+                >
+                  🖨️ Print
+                </button>
                 <button
                   className="btn btn-sm btn-qr"
                   onClick={() => handleGenerateQR(chemical.id)}

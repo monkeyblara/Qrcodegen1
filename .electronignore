@@ -1,0 +1,9 @@
+dist
+scripts
+README*.md
+*.md
+*.bat
+*.ps1
+.gitignore
+.vscode
+tmp

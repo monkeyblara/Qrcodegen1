@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import QRCode from 'react-qr-code';
+import { getAppOrigin } from '../utils/getAppOrigin';
 import './ProductDetails.css';
 
 function ProductDetails({ productId }) {
@@ -25,6 +27,53 @@ function ProductDetails({ productId }) {
       fetchProduct();
     }
   }, [productId]);
+
+  const handlePrint = () => {
+    const qrElement = document.querySelector('#product-qr-code svg');
+    if (!qrElement) {
+      alert('Please wait for the QR code to render before printing.');
+      return;
+    }
+
+    const serializer = new XMLSerializer();
+    const svgString = serializer.serializeToString(qrElement);
+    const svgBlob = new Blob([svgString], { type: 'image/svg+xml;charset=utf-8' });
+    const url = URL.createObjectURL(svgBlob);
+    const image = new Image();
+
+    image.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = 256;
+      canvas.height = 256;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
+      URL.revokeObjectURL(url);
+      const imgData = canvas.toDataURL('image/png');
+
+      const printWindow = window.open('', '', 'width=800,height=600');
+      printWindow.document.write(`
+        <html>
+          <head>
+            <title>Print QR Code - ${product.serialNumber}</title>
+          </head>
+          <body style="display: flex; flex-direction: column; align-items: center; padding: 20px; font-family: Arial, sans-serif;">
+            <h2 style="margin-bottom: 10px;">${product.productName}</h2>
+            <p style="margin: 4px 0;"><strong>Serial Number:</strong> ${product.serialNumber}</p>
+            <img src="${imgData}" alt="QR Code" style="margin: 20px 0; width: 240px; height: 240px;" />
+            <p style="margin-top: 20px; text-align: center;">
+              <strong>Scan this QR code to view product details</strong>
+            </p>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+      printWindow.print();
+    };
+
+    image.src = url;
+  };
 
   if (loading) {
     return <div className="product-details-page loading">Loading product details...</div>;
@@ -92,6 +141,22 @@ function ProductDetails({ productId }) {
             <p>{new Date(product.updatedAt).toLocaleString()}</p>
           </div>
         )}
+
+        <div className="qr-section">
+          <h2>QR Code</h2>
+          <div id="product-qr-code" className="qr-code-box">
+            <QRCode
+              value={`${getAppOrigin()}/product/${product.id || product._id}`}
+              size={220}
+              bgColor="#ffffff"
+              fgColor="#000000"
+              level="H"
+            />
+          </div>
+          <button onClick={handlePrint} className="btn-print">
+            🖨️ Print QR Code
+          </button>
+        </div>
 
         <div className="action-buttons">
           <button onClick={() => window.print()} className="btn-print">

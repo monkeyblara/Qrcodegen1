@@ -12,6 +12,7 @@ import ChemicalsList from './components/ChemicalsList';
 import ChemicalDetails from './components/ChemicalDetails';
 import QRCode from 'react-qr-code';
 import axios from 'axios';
+import { getAppOrigin } from './utils/getAppOrigin';
 
 function ProductDetailsPage() {
   const { id } = useParams();
@@ -349,7 +350,7 @@ function QRCodeDisplay({ product }) {
     <div className="qr-display">
       <div id="qr-code-ref" className="qr-code-container">
         <QRCode 
-          value={`${window.location.origin}/product/${product.id}`}
+          value={`${getAppOrigin()}/product/${product.id}`}
           size={256}
           bgColor="#ffffff"
           fgColor="#000000"

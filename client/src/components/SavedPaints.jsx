@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import QRCode from 'react-qr-code';
+import { getAppOrigin } from '../utils/getAppOrigin';
 import './SavedPaints.css';
 
 function SavedPaints() {
@@ -378,7 +379,7 @@ function QRPaintDisplay({ paint }) {
     <div className="qr-display">
       <div id="qr-paint-ref" className="qr-code-container">
         <QRCode 
-          value={`${window.location.origin}/paint/${paint.id}`}
+          value={`${getAppOrigin()}/paint/${paint.id}`}
           size={256}
           bgColor="#ffffff"
           fgColor="#000000"
