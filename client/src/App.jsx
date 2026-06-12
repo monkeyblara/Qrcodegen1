@@ -136,8 +136,8 @@ function AppContent() {
 
       <footer className="app-footer">
         <div className="footer-inner">
-          <p className="copyright">© 2026 Munashe Mudondo. All rights reserved.</p>
           <p className="app-name">Paint & Chemicals QR Code Generator System</p>
+          <p className="copyright">© 2026 Munashe Mudondo. All rights reserved.</p>
         </div>
       </footer>
 
