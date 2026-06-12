@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useRef } from 'react';
 import { BrowserRouter as Router, Routes, Route, useParams, useNavigate } from 'react-router-dom';
 import './App.css';
 import Login from './components/Login';
@@ -378,6 +379,13 @@ function QRCodeDisplay({ product }) {
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  // Inactivity / auto-logout state
+  const IDLE_TIMEOUT_MS = 10 * 60 * 1000; // 10 minutes of inactivity before warning
+  const COUNTDOWN_SECONDS = 60; // 60-second countdown to auto-logout
+  const inactivityTimerRef = useRef(null);
+  const countdownIntervalRef = useRef(null);
+  const [showIdleModal, setShowIdleModal] = useState(false);
+  const [countdown, setCountdown] = useState(COUNTDOWN_SECONDS);
 
   useEffect(() => {
     // Check if token exists in localStorage
@@ -402,6 +410,88 @@ function App() {
       setLoading(false);
     }
   }, []);
+
+    // Inactivity handling
+    const resetInactivityTimer = () => {
+      try {
+        if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = setTimeout(() => {
+          // Show warning modal and start countdown
+          setShowIdleModal(true);
+          setCountdown(COUNTDOWN_SECONDS);
+          if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+          countdownIntervalRef.current = setInterval(() => {
+            setCountdown((c) => {
+              if (c <= 1) {
+                clearInterval(countdownIntervalRef.current);
+                performLogout();
+                return 0;
+              }
+              return c - 1;
+            });
+          }, 1000);
+        }, IDLE_TIMEOUT_MS);
+      } catch (err) {
+        console.error('Error setting inactivity timer', err);
+      }
+    };
+
+    const stayLoggedIn = () => {
+      setShowIdleModal(false);
+      setCountdown(COUNTDOWN_SECONDS);
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      resetInactivityTimer();
+    };
+
+    const performLogout = () => {
+      if (countdownIntervalRef.current) {
+        clearInterval(countdownIntervalRef.current);
+        countdownIntervalRef.current = null;
+      }
+      if (inactivityTimerRef.current) {
+        clearTimeout(inactivityTimerRef.current);
+        inactivityTimerRef.current = null;
+      }
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      delete axios.defaults.headers.common['Authorization'];
+      setIsAuthenticated(false);
+      setShowIdleModal(false);
+      // redirect to login
+      window.location.href = '/';
+    };
+
+    useEffect(() => {
+      if (!isAuthenticated) {
+        // clear timers when logged out
+        if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+        if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+        return;
+      }
+
+      // Start/reset inactivity timer and listen for activity
+      resetInactivityTimer();
+      const activityEvents = ['mousemove', 'keydown', 'click', 'touchstart'];
+      const activityHandler = () => {
+        // If modal visible and user interacts, treat as stay logged in
+        if (showIdleModal) {
+          stayLoggedIn();
+        } else {
+          resetInactivityTimer();
+        }
+      };
+
+      activityEvents.forEach((ev) => window.addEventListener(ev, activityHandler));
+
+      return () => {
+        activityEvents.forEach((ev) => window.removeEventListener(ev, activityHandler));
+        if (inactivityTimerRef.current) clearTimeout(inactivityTimerRef.current);
+        if (countdownIntervalRef.current) clearInterval(countdownIntervalRef.current);
+      };
+    }, [isAuthenticated, showIdleModal]);
 
   const handleLoginSuccess = (token) => {
     localStorage.setItem('authToken', token);
@@ -431,6 +521,18 @@ function App() {
           element={isAuthenticated ? <AppContent /> : <Login onLoginSuccess={handleLoginSuccess} />} 
         />
       </Routes>
+      {showIdleModal && (
+        <div className="idle-modal">
+          <div className="idle-modal-content">
+            <h3>Inactivity detected</h3>
+            <p>You have been inactive. You will be automatically logged out in <strong>{countdown}</strong> seconds.</p>
+            <div className="idle-modal-actions">
+              <button className="btn btn-primary" onClick={stayLoggedIn}>Stay logged in</button>
+              <button className="btn btn-danger" onClick={performLogout}>Logout now</button>
+            </div>
+          </div>
+        </div>
+      )}
     </Router>
   );
 }
