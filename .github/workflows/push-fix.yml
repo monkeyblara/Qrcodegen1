@@ -1,0 +1,12 @@
+name: Push Fix
+
+on: [workflow_dispatch]
+
+jobs:
+  push-fix:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Run push-fix
+        run: |
+          bash scripts/git-push-fix.sh
