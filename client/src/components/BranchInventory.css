@@ -1,0 +1,184 @@
+.branch-inventory {
+  padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.branch-inventory h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.branch-selector {
+  margin-bottom: 20px;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.branch-selector label {
+  font-weight: 600;
+  color: #333;
+}
+
+.branch-selector select {
+  padding: 8px 15px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+  min-width: 300px;
+}
+
+.branch-info {
+  background: #e7f3ff;
+  border-left: 4px solid #007bff;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.branch-info h3 {
+  margin-top: 0;
+  color: #004085;
+}
+
+.branch-info p {
+  margin: 5px 0;
+  color: #004085;
+}
+
+.inventory-summary {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.summary-label {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.summary-value {
+  margin: 10px 0 0 0;
+  color: #007bff;
+  font-size: 32px;
+  font-weight: bold;
+}
+
+.inventory-table-container {
+  background: white;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  overflow-x: auto;
+}
+
+.inventory-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.inventory-table-container table th {
+  background: #f0f0f0;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  font-size: 14px;
+}
+
+.inventory-table-container table td {
+  padding: 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 14px;
+}
+
+.inventory-table-container table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.product-name {
+  color: #333;
+}
+
+.product-name small {
+  color: #999;
+}
+
+.serial {
+  font-family: monospace;
+  color: #666;
+  font-size: 12px;
+}
+
+.received,
+.transferred,
+.sold,
+.stock {
+  text-align: center;
+  font-weight: 500;
+}
+
+.stock strong {
+  color: #007bff;
+  font-size: 16px;
+}
+
+.status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.status.good {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status.low {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status.critical {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.loading {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+}
+
+.no-inventory {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+}
+
+.select-branch-message {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+  background: #f9f9f9;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+}

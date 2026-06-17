@@ -1,0 +1,344 @@
+import React, { useState, useEffect, useRef } from 'react';
+import './ProductScanner.css';
+
+export default function ProductScanner() {
+  const [branches, setBranches] = useState([]);
+  const [selectedBranch, setSelectedBranch] = useState('');
+  const [scanCode, setScanCode] = useState('');
+  const [scannedProduct, setScannedProduct] = useState(null);
+  const [formData, setFormData] = useState({
+    quantitySold: '',
+    customerName: '',
+    salePrice: '',
+    paymentMethod: 'cash',
+    soldBy: ''
+  });
+  const [message, setMessage] = useState('');
+  const [sales, setSales] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const scanInputRef = useRef(null);
+
+  useEffect(() => {
+    fetchBranches();
+    fetchSales();
+  }, []);
+
+  useEffect(() => {
+    if (scanInputRef.current) {
+      scanInputRef.current.focus();
+    }
+  }, [selectedBranch]);
+
+  const fetchBranches = async () => {
+    try {
+      const response = await fetch('/api/branches/active/list', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await response.json();
+      setBranches(data);
+    } catch (error) {
+      console.error('Error fetching branches:', error);
+    }
+  };
+
+  const fetchSales = async () => {
+    try {
+      const response = await fetch('/api/sales', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const data = await response.json();
+      setSales(data);
+    } catch (error) {
+      console.error('Error fetching sales:', error);
+    }
+  };
+
+  const handleScan = async (e) => {
+    e.preventDefault();
+    
+    if (!scanCode.trim() || !selectedBranch) {
+      setMessage('Please select a branch and scan a product');
+      return;
+    }
+
+    setLoading(true);
+    try {
+      // Try to find product by serial number (from QR/barcode)
+      const productsResponse = await fetch('/api/products', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+      const products = await productsResponse.json();
+      
+      const product = products.find(p => p.serialNumber === scanCode);
+      
+      if (!product) {
+        setMessage('Product not found with this QR/Barcode');
+        setScanCode('');
+        setScannedProduct(null);
+        return;
+      }
+
+      // Check inventory
+      const inventoryResponse = await fetch(`/api/inventory/branch/${selectedBranch}/product/${product._id}`, {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+      });
+
+      if (!inventoryResponse.ok) {
+        setMessage('This product is not available in selected branch');
+        setScanCode('');
+        setScannedProduct(null);
+        return;
+      }
+
+      const inventory = await inventoryResponse.json();
+      setScannedProduct({ ...product, ...inventory });
+      setMessage('Product found! Enter sale details below');
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
+    } finally {
+      setLoading(false);
+      setScanCode('');
+    }
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleCompleteSale = async (e) => {
+    e.preventDefault();
+
+    if (!scannedProduct || !formData.quantitySold || !formData.soldBy) {
+      setMessage('Please fill all required fields');
+      return;
+    }
+
+    if (parseInt(formData.quantitySold) > scannedProduct.currentQuantity) {
+      setMessage('Quantity exceeds available stock');
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/sales', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        },
+        body: JSON.stringify({
+          productId: scannedProduct._id,
+          branchId: selectedBranch,
+          serialNumber: scannedProduct.serialNumber,
+          scanCode: scannedProduct.serialNumber,
+          quantitySold: parseInt(formData.quantitySold),
+          customerName: formData.customerName,
+          salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+          paymentMethod: formData.paymentMethod,
+          soldBy: formData.soldBy,
+          saleDate: new Date()
+        })
+      });
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error);
+      }
+
+      setMessage('Sale recorded successfully!');
+      setFormData({
+        quantitySold: '',
+        customerName: '',
+        salePrice: '',
+        paymentMethod: 'cash',
+        soldBy: ''
+      });
+      setScannedProduct(null);
+      fetchSales();
+      
+      if (scanInputRef.current) {
+        scanInputRef.current.focus();
+      }
+    } catch (error) {
+      setMessage(`Error: ${error.message}`);
+    }
+  };
+
+  return (
+    <div className="product-scanner">
+      <h2>Sell Products via QR/Barcode</h2>
+
+      {message && <div className="message">{message}</div>}
+
+      <div className="scanner-section">
+        <h3>Scan Product</h3>
+        
+        <div className="branch-selector">
+          <label>Select Branch *</label>
+          <select
+            value={selectedBranch}
+            onChange={(e) => {
+              setSelectedBranch(e.target.value);
+              setScannedProduct(null);
+            }}
+          >
+            <option value="">-- Select Branch --</option>
+            {branches.map(b => (
+              <option key={b._id} value={b._id}>
+                {b.branchName} ({b.branchCode})
+              </option>
+            ))}
+          </select>
+        </div>
+
+        {selectedBranch && (
+          <form onSubmit={handleScan} className="scan-form">
+            <div className="scan-input-group">
+              <label>Scan QR Code or Barcode *</label>
+              <input
+                ref={scanInputRef}
+                type="text"
+                value={scanCode}
+                onChange={(e) => setScanCode(e.target.value)}
+                placeholder="Point scanner here..."
+                autoFocus
+                disabled={loading}
+              />
+              <button type="submit" className="btn btn-scan" disabled={loading}>
+                {loading ? 'Scanning...' : 'Scan'}
+              </button>
+            </div>
+          </form>
+        )}
+      </div>
+
+      {scannedProduct && (
+        <div className="product-details">
+          <h3>Product Details</h3>
+          <div className="details-grid">
+            <div><strong>Product:</strong> {scannedProduct.productName}</div>
+            <div><strong>Brand:</strong> {scannedProduct.brand}</div>
+            <div><strong>Serial:</strong> {scannedProduct.serialNumber}</div>
+            <div><strong>Available:</strong> {scannedProduct.currentQuantity} units</div>
+          </div>
+
+          <form onSubmit={handleCompleteSale} className="sale-form">
+            <div className="form-row">
+              <div className="form-group">
+                <label>Quantity Sold *</label>
+                <input
+                  type="number"
+                  name="quantitySold"
+                  value={formData.quantitySold}
+                  onChange={handleInputChange}
+                  required
+                  min="1"
+                  max={scannedProduct.currentQuantity}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Sale Price</label>
+                <input
+                  type="number"
+                  name="salePrice"
+                  value={formData.salePrice}
+                  onChange={handleInputChange}
+                  step="0.01"
+                />
+              </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Customer Name</label>
+                <input
+                  type="text"
+                  name="customerName"
+                  value={formData.customerName}
+                  onChange={handleInputChange}
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Sold By *</label>
+                <input
+                  type="text"
+                  name="soldBy"
+                  value={formData.soldBy}
+                  onChange={handleInputChange}
+                  required
+                />
+              </div>
+            </div>
+
+            <div className="form-group full-width">
+              <label>Payment Method</label>
+              <select
+                name="paymentMethod"
+                value={formData.paymentMethod}
+                onChange={handleInputChange}
+              >
+                <option value="cash">Cash</option>
+                <option value="card">Card</option>
+                <option value="transfer">Bank Transfer</option>
+                <option value="cheque">Cheque</option>
+              </select>
+            </div>
+
+            <div className="form-actions">
+              <button type="submit" className="btn btn-success">Complete Sale</button>
+              <button
+                type="button"
+                className="btn btn-cancel"
+                onClick={() => {
+                  setScannedProduct(null);
+                  setScanCode('');
+                  if (scanInputRef.current) scanInputRef.current.focus();
+                }}
+              >
+                Cancel & Scan Another
+              </button>
+            </div>
+          </form>
+        </div>
+      )}
+
+      <div className="sales-history">
+        <h3>Today's Sales</h3>
+        <table>
+          <thead>
+            <tr>
+              <th>Invoice #</th>
+              <th>Product</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Total</th>
+              <th>Customer</th>
+              <th>Seller</th>
+              <th>Payment</th>
+            </tr>
+          </thead>
+          <tbody>
+            {sales
+              .filter(s => new Date(s.saleDate).toDateString() === new Date().toDateString())
+              .slice(0, 10)
+              .map(sale => (
+                <tr key={sale._id}>
+                  <td>{sale.invoiceNumber}</td>
+                  <td>{sale.productId?.productName}</td>
+                  <td>{sale.quantitySold}</td>
+                  <td>{sale.salePrice || '-'}</td>
+                  <td>{sale.totalAmount || '-'}</td>
+                  <td>{sale.customerName || '-'}</td>
+                  <td>{sale.soldBy}</td>
+                  <td>{sale.paymentMethod}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}

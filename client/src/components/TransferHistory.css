@@ -1,0 +1,144 @@
+.transfer-history {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.transfer-history h2 {
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.filters {
+  background: #f9f9f9;
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 15px;
+  flex-wrap: wrap;
+  border: 1px solid #ddd;
+}
+
+.filter-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.filter-group label {
+  font-weight: 600;
+  color: #333;
+  white-space: nowrap;
+}
+
+.filter-group select {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 14px;
+}
+
+.summary {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 20px;
+  display: flex;
+  gap: 30px;
+}
+
+.summary-item {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.summary-item .label {
+  font-weight: 600;
+  color: #666;
+}
+
+.summary-item .value {
+  font-size: 20px;
+  font-weight: bold;
+  color: #007bff;
+}
+
+.transfers-table-container {
+  background: white;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 20px;
+  overflow-x: auto;
+}
+
+.transfers-table-container table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.transfers-table-container table th {
+  background: #f0f0f0;
+  padding: 12px;
+  text-align: left;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 2px solid #ddd;
+  font-size: 13px;
+  white-space: nowrap;
+}
+
+.transfers-table-container table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #eee;
+  font-size: 13px;
+}
+
+.transfers-table-container table tbody tr:hover {
+  background: #f9f9f9;
+}
+
+.transfer-id {
+  font-family: monospace;
+  color: #007bff;
+  font-weight: 600;
+}
+
+.quantity {
+  text-align: center;
+  font-weight: 500;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  color: white;
+  text-transform: capitalize;
+}
+
+.actions {
+  text-align: center;
+}
+
+.action-select {
+  padding: 6px 10px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.no-actions {
+  color: #999;
+}
+
+.no-data {
+  text-align: center;
+  color: #999;
+  padding: 40px 20px;
+}

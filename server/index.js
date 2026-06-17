@@ -12,6 +12,11 @@ const productRoutes = require('./routes/products');
 const savedPaintsRoutes = require('./routes/savedPaints');
 const paintTypesRoutes = require('./routes/paintTypes');
 const chemicalRoutes = require('./routes/chemicals');
+const branchRoutes = require('./routes/branches');
+const receivingRoutes = require('./routes/receiving');
+const transferRoutes = require('./routes/transfers');
+const salesRoutes = require('./routes/sales');
+const inventoryRoutes = require('./routes/inventory');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -37,6 +42,11 @@ app.use('/api/products', authenticateToken, productRoutes);
 app.use('/api/saved-paints', authenticateToken, savedPaintsRoutes);
 app.use('/api/paint-types', authenticateToken, paintTypesRoutes);
 app.use('/api/chemicals', authenticateToken, chemicalRoutes);
+app.use('/api/branches', authenticateToken, branchRoutes);
+app.use('/api/receiving', authenticateToken, receivingRoutes);
+app.use('/api/transfers', authenticateToken, transferRoutes);
+app.use('/api/sales', authenticateToken, salesRoutes);
+app.use('/api/inventory', authenticateToken, inventoryRoutes);
 
 const clientDistPath = path.join(__dirname, '../client/dist');
 if (fs.existsSync(clientDistPath)) {

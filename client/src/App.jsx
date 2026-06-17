@@ -11,6 +11,13 @@ import PaintDetails from './components/PaintDetails';
 import PaintTypesManager from './components/PaintTypesManager';
 import ChemicalsList from './components/ChemicalsList';
 import ChemicalDetails from './components/ChemicalDetails';
+import BranchManagement from './components/BranchManagement';
+import ReceiveProducts from './components/ReceiveProducts';
+import TransferProducts from './components/TransferProducts';
+import ProductScanner from './components/ProductScanner';
+import BranchInventory from './components/BranchInventory';
+import SalesHistory from './components/SalesHistory';
+import TransferHistory from './components/TransferHistory';
 import QRCode from 'react-qr-code';
 import axios from 'axios';
 import { getAppOrigin } from './utils/getAppOrigin';
@@ -180,6 +187,48 @@ function AppContent() {
           >
             📋 Types
           </button>
+          <button 
+            className={`tab-button ${activeTab === 'branches' ? 'active' : ''}`}
+            onClick={() => setActiveTab('branches')}
+          >
+            🏢 Branches
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'receive' ? 'active' : ''}`}
+            onClick={() => setActiveTab('receive')}
+          >
+            📥 Receive
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'transfer' ? 'active' : ''}`}
+            onClick={() => setActiveTab('transfer')}
+          >
+            🔄 Transfer
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'sales' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sales')}
+          >
+            💰 Sell
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'inventory' ? 'active' : ''}`}
+            onClick={() => setActiveTab('inventory')}
+          >
+            📊 Inventory
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'sales-history' ? 'active' : ''}`}
+            onClick={() => setActiveTab('sales-history')}
+          >
+            📈 Sales
+          </button>
+          <button 
+            className={`tab-button ${activeTab === 'transfers-history' ? 'active' : ''}`}
+            onClick={() => setActiveTab('transfers-history')}
+          >
+            📋 Transfers
+          </button>
         </div>
 
         {activeTab === 'products' && (
@@ -272,6 +321,34 @@ function AppContent() {
 
         {activeTab === 'types' && (
           <PaintTypesManager />
+        )}
+
+        {activeTab === 'branches' && (
+          <BranchManagement />
+        )}
+
+        {activeTab === 'receive' && (
+          <ReceiveProducts />
+        )}
+
+        {activeTab === 'transfer' && (
+          <TransferProducts />
+        )}
+
+        {activeTab === 'sales' && (
+          <ProductScanner />
+        )}
+
+        {activeTab === 'inventory' && (
+          <BranchInventory />
+        )}
+
+        {activeTab === 'sales-history' && (
+          <SalesHistory />
+        )}
+
+        {activeTab === 'transfers-history' && (
+          <TransferHistory />
         )}
       </div>
     </div>
