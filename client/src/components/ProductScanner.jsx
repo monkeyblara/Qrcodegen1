@@ -44,11 +44,41 @@ export default function ProductScanner() {
       const videoInputs = devices.filter(device => device.kind === 'videoinput');
       setVideoDevices(videoInputs);
       if (!selectedVideoDeviceId && videoInputs.length > 0) {
-        setSelectedVideoDeviceId(videoInputs[0].deviceId);
+        setSelectedVideoDeviceId(selectPreferredVideoDevice(videoInputs));
       }
     } catch (error) {
       console.error('Error enumerating video devices:', error);
     }
+  };
+
+  const selectPreferredVideoDevice = (videoInputs) => {
+    // Prefer rear/back camera on mobile devices, then any named camera.
+    const lowerLabels = videoInputs.map(device => ({
+      ...device,
+      label: device.label.toLowerCase()
+    }));
+
+    const rearCamera = lowerLabels.find(device =>
+      device.label.includes('back') ||
+      device.label.includes('rear') ||
+      device.label.includes('environment') ||
+      device.label.includes('wide')
+    );
+
+    if (rearCamera) {
+      return rearCamera.deviceId;
+    }
+
+    const frontCamera = lowerLabels.find(device =>
+      device.label.includes('front') ||
+      device.label.includes('selfie')
+    );
+
+    if (frontCamera) {
+      return frontCamera.deviceId;
+    }
+
+    return videoInputs[0].deviceId;
   };
 
   useEffect(() => {
@@ -65,11 +95,19 @@ export default function ProductScanner() {
     }
 
     try {
+      const videoInputs = videoDevices.length > 0 ? videoDevices : (await navigator.mediaDevices.enumerateDevices()).filter(device => device.kind === 'videoinput');
+      let preferredDeviceId = selectedVideoDeviceId;
+
+      if (!preferredDeviceId && videoInputs.length > 0) {
+        preferredDeviceId = selectPreferredVideoDevice(videoInputs);
+        setSelectedVideoDeviceId(preferredDeviceId);
+      }
+
       const constraints = {
         video: {
           width: { ideal: 640 },
           height: { ideal: 480 },
-          ...(selectedVideoDeviceId ? { deviceId: { exact: selectedVideoDeviceId } } : { facingMode: 'environment' })
+          ...(preferredDeviceId ? { deviceId: { exact: preferredDeviceId } } : { facingMode: 'environment' })
         }
       };
 
