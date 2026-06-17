@@ -59,11 +59,16 @@ export default function ProductScanner() {
 
   // Camera permission and setup
   const startCamera = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      setMessage('Camera API is not available in this browser.');
+      return;
+    }
+
     try {
       const constraints = {
         video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          width: { ideal: 640 },
+          height: { ideal: 480 },
           ...(selectedVideoDeviceId ? { deviceId: { exact: selectedVideoDeviceId } } : { facingMode: 'environment' })
         }
       };
@@ -72,6 +77,12 @@ export default function ProductScanner() {
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
+        videoRef.current.muted = true;
+        videoRef.current.onloadedmetadata = () => {
+          videoRef.current.play().catch((err) => {
+            console.warn('Video play failed:', err);
+          });
+        };
       }
       setCameraPermission('granted');
       setCameraEnabled(true);
@@ -79,7 +90,7 @@ export default function ProductScanner() {
     } catch (error) {
       console.error('Error accessing camera:', error);
       setCameraPermission('denied');
-      setMessage('Camera permission denied or not available');
+      setMessage('Camera permission denied, no camera found, or the selected camera is unavailable.');
     }
   };
 
@@ -322,6 +333,15 @@ export default function ProductScanner() {
                   ))}
                 </select>
               </div>
+
+              <button
+                type="button"
+                className="btn btn-secondary camera-btn"
+                onClick={loadVideoDevices}
+                disabled={cameraEnabled}
+              >
+                🔄 Refresh cameras
+              </button>
 
               {!cameraEnabled ? (
                 <button 
