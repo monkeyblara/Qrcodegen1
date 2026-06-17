@@ -391,3 +391,7 @@ For issues and questions:
 ---
 
 Last Updated: June 2, 2026
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -9,7 +9,9 @@
     "react-qr-code": "^2.0.21",
     "axios": "^1.6.0",
     "react-router-dom": "^6.19.0",
-    "html2canvas": "^1.4.1"
+    "html2canvas": "^1.4.1",
+    "jspdf": "^2.5.1",
+    "xlsx": "^0.18.5"
   },
   "scripts": {
     "dev": "vite",

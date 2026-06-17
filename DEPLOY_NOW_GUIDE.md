@@ -491,3 +491,7 @@ cd "C:\Users\Lenovo\Documents\QR CODE GENERATOR SYSTEM" && DEPLOY_HEROKU.bat
 **Result: System live on internet** 🌍  
 
 **LET'S LAUNCH!** 🎊
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

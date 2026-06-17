@@ -114,3 +114,7 @@ https://your-app-name.herokuapp.com/product/{productId}
 ---
 
 **Ready to deploy?** Follow the steps above! 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -452,3 +452,7 @@ Enjoy managing your paint products with QR codes! 🎨
 **Project Created**: June 2, 2026
 **System Status**: ✅ Production Ready
 **Last Updated**: June 2, 2026
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

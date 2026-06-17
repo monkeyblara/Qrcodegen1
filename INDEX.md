@@ -392,3 +392,7 @@ You now have access to comprehensive, complete documentation covering every aspe
 ---
 
 Happy coding! 🎨
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

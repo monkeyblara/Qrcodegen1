@@ -356,3 +356,7 @@ npm run dev
 ```
 
 **Your MongoDB integration is complete and ready to use!** 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

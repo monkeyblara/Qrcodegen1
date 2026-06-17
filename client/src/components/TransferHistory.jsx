@@ -15,7 +15,7 @@ export default function TransferHistory() {
   const fetchBranches = async () => {
     try {
       const response = await fetch('/api/branches/active/list', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setBranches(data);
@@ -32,7 +32,7 @@ export default function TransferHistory() {
       }
 
       const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       
@@ -65,7 +65,7 @@ export default function TransferHistory() {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({ status: newStatus })
       });

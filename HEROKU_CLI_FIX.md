@@ -228,3 +228,7 @@ cd "C:\Users\Lenovo\Documents\QR CODE GENERATOR SYSTEM" && DEPLOY_HEROKU.bat
 ---
 
 **Once Heroku CLI is installed, deployment is 100% automated!** 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

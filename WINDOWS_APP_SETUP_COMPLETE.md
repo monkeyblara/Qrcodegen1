@@ -342,3 +342,7 @@ Your system now has everything needed to:
 **Status**: ✅ Windows App Setup Complete
 **Created**: 2026-06-12
 **Ready for**: Building, Testing, and Distribution
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

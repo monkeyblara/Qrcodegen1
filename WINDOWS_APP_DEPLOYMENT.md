@@ -385,3 +385,7 @@ npm run electron-build
 **Windows App Deployment Ready** ✅
 **Created**: 2026-06-12
 **Status**: Production Ready
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

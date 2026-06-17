@@ -118,3 +118,7 @@ This will deploy your system to Heroku!
 ---
 
 **Pro Tip:** Keep Command Prompt window open the entire time. Don't close it until deployment is complete!
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

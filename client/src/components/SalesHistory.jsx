@@ -19,7 +19,7 @@ export default function SalesHistory() {
   const fetchBranches = async () => {
     try {
       const response = await fetch('/api/branches/active/list', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setBranches(data);
@@ -39,7 +39,7 @@ export default function SalesHistory() {
       }
 
       const response = await fetch(url, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setSales(data);
@@ -47,7 +47,7 @@ export default function SalesHistory() {
       // Fetch statistics
       const statsUrl = `/api/sales/stats/summary?${url.split('?')[1]}`;
       const statsResponse = await fetch(statsUrl, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const statsData = await statsResponse.json();
       setStatistics(statsData);

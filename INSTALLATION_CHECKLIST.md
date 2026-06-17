@@ -365,3 +365,7 @@ npm run build        # Production build
 **Status**: Ready for Use ✅
 
 Enjoy your QR Code Generator System! 🎨
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

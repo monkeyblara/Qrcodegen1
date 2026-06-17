@@ -323,3 +323,7 @@ npm run test:api
 ---
 
 **🚀 Ready to build amazing things with your QR Code Generator!**
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

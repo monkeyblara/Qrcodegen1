@@ -383,3 +383,7 @@ npm install && npm run seed && npm run dev
 - No additional setup needed
 
 **Execute the setup and enjoy your online system!** 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

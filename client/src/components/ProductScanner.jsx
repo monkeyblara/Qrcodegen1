@@ -32,7 +32,7 @@ export default function ProductScanner() {
   const fetchBranches = async () => {
     try {
       const response = await fetch('/api/branches/active/list', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setBranches(data);
@@ -44,7 +44,7 @@ export default function ProductScanner() {
   const fetchSales = async () => {
     try {
       const response = await fetch('/api/sales', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setSales(data);
@@ -65,7 +65,7 @@ export default function ProductScanner() {
     try {
       // Try to find product by serial number (from QR/barcode)
       const productsResponse = await fetch('/api/products', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const products = await productsResponse.json();
       
@@ -80,7 +80,7 @@ export default function ProductScanner() {
 
       // Check inventory
       const inventoryResponse = await fetch(`/api/inventory/branch/${selectedBranch}/product/${product._id}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
 
       if (!inventoryResponse.ok) {
@@ -124,7 +124,7 @@ export default function ProductScanner() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({
           productId: scannedProduct._id,

@@ -299,3 +299,7 @@ All files are created and ready. Follow the execution steps above in order:
 4. `npm run test:api` (new terminal)
 
 Your MongoDB integration will be complete! 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

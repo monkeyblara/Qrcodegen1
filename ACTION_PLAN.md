@@ -308,3 +308,7 @@ npm run test:api
 ```
 
 That's it! Your MongoDB integration is complete! 🎉
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -280,7 +280,9 @@ npm install
 
 ## License
 
-MIT License - Feel free to use this project for personal or commercial purposes.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) for full license text.
+
+Copyright (c) 2026 Munashe Mudondo. All rights reserved.
 
 ## Support
 

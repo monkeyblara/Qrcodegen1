@@ -439,3 +439,7 @@ cd "C:\Users\Lenovo\Documents\QR CODE GENERATOR SYSTEM" && DEPLOY_HEROKU.bat
 **🎉 Congratulations! Your QR Paint System is ready for the world!**
 
 **Status: READY TO DEPLOY** ✅
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

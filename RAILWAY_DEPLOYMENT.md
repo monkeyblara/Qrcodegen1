@@ -59,3 +59,7 @@ npm start
 ```
 
 Then open `http://localhost:5000`.
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -1,4 +1,4 @@
-const { app, BrowserWindow, Menu, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, ipcMain, screen } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const fs = require('fs');
@@ -22,11 +22,16 @@ if (squirrelStartup) {
 
 // Create the browser window
 function createWindow() {
+  // Use the primary display work area so the window fits the available screen
+  const { width: displayWidth, height: displayHeight } = screen.getPrimaryDisplay().workAreaSize;
+
   mainWindow = new BrowserWindow({
-    width: 1400,
-    height: 900,
+    width: Math.max(900, Math.min(1400, displayWidth)),
+    height: Math.max(700, Math.min(900, displayHeight)),
     minWidth: 900,
     minHeight: 700,
+    useContentSize: true,
+    autoHideMenuBar: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -42,10 +47,16 @@ function createWindow() {
 
   mainWindow.loadURL(startUrl);
 
-  // Open DevTools to see errors
-  // Disable in production by setting HIDE_DEV_TOOLS=true
+  // Open DevTools to see errors (disabled by HIDE_DEV_TOOLS in production)
   if (!process.env.HIDE_DEV_TOOLS) {
     mainWindow.webContents.openDevTools();
+  }
+
+  // Ensure window fills available work area without covering OS UI (taskbar)
+  try {
+    mainWindow.setBounds({ x: 0, y: 0, width: displayWidth, height: displayHeight });
+  } catch (err) {
+    // ignore if unable to resize on some platforms
   }
 
   mainWindow.on('closed', () => {

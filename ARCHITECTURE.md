@@ -465,3 +465,7 @@ Database (if miss)
 
 **Architecture Last Updated**: June 2, 2026
 **System Status**: Production Ready
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

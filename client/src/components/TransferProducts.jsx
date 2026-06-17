@@ -25,7 +25,7 @@ export default function TransferProducts() {
   const fetchProducts = async () => {
     try {
       const response = await fetch('/api/products', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setProducts(data);
@@ -37,7 +37,7 @@ export default function TransferProducts() {
   const fetchBranches = async () => {
     try {
       const response = await fetch('/api/branches/active/list', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setBranches(data);
@@ -49,7 +49,7 @@ export default function TransferProducts() {
   const fetchTransfers = async () => {
     try {
       const response = await fetch('/api/transfers', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setTransfers(data);
@@ -77,7 +77,7 @@ export default function TransferProducts() {
   const fetchInventory = async (branchId, productId) => {
     try {
       const response = await fetch(`/api/inventory/branch/${branchId}/product/${productId}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       if (response.ok) {
         const data = await response.json();
@@ -111,7 +111,7 @@ export default function TransferProducts() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify({
           ...formData,

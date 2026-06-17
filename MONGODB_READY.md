@@ -220,3 +220,7 @@ Check these files in order:
 **🚀 LET'S LAUNCH! Your system is ready!**
 
 Execute one of the methods above and you'll be online in ~10 minutes!
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -194,3 +194,7 @@ Double-click: setup-and-run.bat
 ```
 
 **Start now!** ⏱️
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

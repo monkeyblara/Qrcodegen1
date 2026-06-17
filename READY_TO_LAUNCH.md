@@ -248,3 +248,7 @@ npm install && npm run seed && npm run dev
 Your MongoDB QR Code Generator System is fully prepared and ready to go live!
 
 **Execute the setup now and enjoy your online system!** 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

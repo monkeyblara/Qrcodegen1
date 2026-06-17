@@ -234,3 +234,7 @@ npm run test:api
 ---
 
 **🎉 LET'S GET YOUR SYSTEM ONLINE!**
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

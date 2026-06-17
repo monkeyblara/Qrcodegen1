@@ -233,3 +233,7 @@ For issues or questions:
 
 **Created**: 2026-06-12
 **Status**: Ready for Windows Distribution
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

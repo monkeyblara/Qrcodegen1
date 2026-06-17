@@ -370,3 +370,7 @@ const DB_PATH = 'path/to/existing/database.db';
 ---
 
 Last Updated: June 2, 2026
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -20,7 +20,7 @@ export default function BranchInventory() {
   const fetchBranches = async () => {
     try {
       const response = await fetch('/api/branches/active/list', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setBranches(data);
@@ -33,7 +33,7 @@ export default function BranchInventory() {
     setLoading(true);
     try {
       const response = await fetch(`/api/inventory/branch/${selectedBranch}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setInventory(data);

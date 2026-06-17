@@ -224,3 +224,7 @@ Check the [Troubleshooting section in README.md](README.md#troubleshooting)
 **Ready to start?** Run `npm run dev` and create your first product! 🎨
 
 For detailed documentation, see [README.md](README.md)
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

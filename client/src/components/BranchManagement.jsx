@@ -22,7 +22,7 @@ export default function BranchManagement() {
   const fetchBranches = async () => {
     try {
       const response = await fetch('/api/branches', {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const data = await response.json();
       setBranches(data);
@@ -47,7 +47,7 @@ export default function BranchManagement() {
         method,
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('token')}`
+          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
         },
         body: JSON.stringify(formData)
       });
@@ -82,7 +82,7 @@ export default function BranchManagement() {
       try {
         const response = await fetch(`/api/branches/${id}`, {
           method: 'DELETE',
-          headers: { 'Authorization': `Bearer ${localStorage.getItem('token')}` }
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
         });
         if (!response.ok) throw new Error('Failed to delete branch');
         setMessage('Branch deleted successfully');

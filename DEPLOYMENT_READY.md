@@ -411,3 +411,7 @@ DEPLOY_HEROKU.bat
 ---
 
 **🎉 Congratulations! Your QR Paint System is ready for the world!**
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

@@ -120,3 +120,7 @@ DEPLOY_HEROKU.bat
 ---
 
 📧 **Need Help?** Check HEROKU_DEPLOYMENT_COMPLETE.md for detailed guide
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

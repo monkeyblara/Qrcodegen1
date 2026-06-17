@@ -193,3 +193,7 @@ For issues with:
 **App built on:** Electron, React, Express, MongoDB  
 **Platform:** Windows (x64)  
 **Version:** 1.0.0
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

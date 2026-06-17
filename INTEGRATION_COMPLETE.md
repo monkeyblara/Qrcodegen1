@@ -448,3 +448,7 @@ In your project root directory:
 ---
 
 **Congratulations! Your QR Code Generator System is now fully integrated with MongoDB!** 🎊
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

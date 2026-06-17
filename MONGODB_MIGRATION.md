@@ -123,3 +123,7 @@ npm run server
 ---
 
 All set! 🎉 Your app is now MongoDB-ready and prepared for Heroku deployment.
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

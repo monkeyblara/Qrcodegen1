@@ -185,3 +185,7 @@ When you update the app:
 
 **Status**: ✅ Ready for Windows Distribution
 **Created**: 2026-06-12
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

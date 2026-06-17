@@ -148,3 +148,7 @@ Server running on http://localhost:5000
 ## 📞 Need Help?
 
 Check the detailed guide: `MONGODB_SETUP_COMPLETE.md` in your session folder
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+

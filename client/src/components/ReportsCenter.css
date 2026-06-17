@@ -1,0 +1,138 @@
+.reports-center {
+  padding: 20px;
+}
+
+.reports-header {
+  margin-bottom: 20px;
+}
+
+.reports-header h2 {
+  margin-bottom: 8px;
+}
+
+.reports-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.report-tab {
+  padding: 10px 16px;
+  border: 1px solid #ccc;
+  background: #f8f8f8;
+  cursor: pointer;
+  border-radius: 6px;
+}
+
+.report-tab.active {
+  background: #007bff;
+  color: white;
+  border-color: #007bff;
+}
+
+.reports-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  align-items: flex-end;
+  margin-bottom: 20px;
+}
+
+.control-group {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+}
+
+.control-group label {
+  margin-bottom: 6px;
+  font-weight: 600;
+}
+
+.control-group select,
+.control-group input {
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  background: white;
+}
+
+.report-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.report-message {
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #e2f0ff;
+  color: #1d4ed8;
+  border: 1px solid #b5d8ff;
+  border-radius: 6px;
+}
+
+.reports-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.summary-card {
+  padding: 16px;
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+  background: #fff;
+}
+
+.summary-card span {
+  display: block;
+  margin-bottom: 8px;
+  color: #555;
+}
+
+.summary-card strong {
+  font-size: 1.25rem;
+}
+
+.report-table-wrapper {
+  overflow-x: auto;
+  background: white;
+  border: 1px solid #e1e1e1;
+  border-radius: 10px;
+}
+
+.report-table-wrapper table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report-table-wrapper th,
+.report-table-wrapper td {
+  border-bottom: 1px solid #ebebeb;
+  padding: 12px 10px;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.report-table-wrapper th {
+  background: #f7f7f7;
+  font-weight: 700;
+}
+
+.report-table-wrapper tr:last-child td {
+  border-bottom: none;
+}
+
+.loading {
+  margin: 20px 0;
+  font-style: italic;
+}
+
+.report-export-area {
+  padding: 10px;
+  background: #fafafa;
+  border-radius: 10px;
+}

@@ -236,3 +236,7 @@ http://yourdomain.smarteraspnet.com/product/{productId}
 6. ✅ Test your app (Step 6)
 
 **Ready?** Let me know which step you're on! 🚀
+
+---
+License: MIT. Copyright (c) 2026 Munashe Mudondo. All rights reserved.
+
