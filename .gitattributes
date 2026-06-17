@@ -1,0 +1,3 @@
+*.js binary
+client/dist/* -text
+dist/* -text

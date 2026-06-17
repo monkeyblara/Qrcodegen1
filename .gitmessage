@@ -1,0 +1,3 @@
+Remove build artifacts and ignore dist
+
+This commit removes tracked build output and adds entries to .gitignore.
