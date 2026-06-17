@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import jsQR from 'jsqr';
 import './ProductScanner.css';
 
 export default function ProductScanner() {
@@ -17,17 +18,120 @@ export default function ProductScanner() {
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
   const scanInputRef = useRef(null);
+  
+  // Camera state
+  const [cameraEnabled, setCameraEnabled] = useState(false);
+  const [cameraPermission, setCameraPermission] = useState(null);
+  const [videoDevices, setVideoDevices] = useState([]);
+  const [selectedVideoDeviceId, setSelectedVideoDeviceId] = useState('');
+  const videoRef = useRef(null);
+  const canvasRef = useRef(null);
+  const streamRef = useRef(null);
 
   useEffect(() => {
     fetchBranches();
     fetchSales();
+    loadVideoDevices();
   }, []);
+
+  const loadVideoDevices = async () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
+      return;
+    }
+
+    try {
+      const devices = await navigator.mediaDevices.enumerateDevices();
+      const videoInputs = devices.filter(device => device.kind === 'videoinput');
+      setVideoDevices(videoInputs);
+      if (!selectedVideoDeviceId && videoInputs.length > 0) {
+        setSelectedVideoDeviceId(videoInputs[0].deviceId);
+      }
+    } catch (error) {
+      console.error('Error enumerating video devices:', error);
+    }
+  };
 
   useEffect(() => {
     if (scanInputRef.current) {
       scanInputRef.current.focus();
     }
   }, [selectedBranch]);
+
+  // Camera permission and setup
+  const startCamera = async () => {
+    try {
+      const constraints = {
+        video: {
+          width: { ideal: 1280 },
+          height: { ideal: 720 },
+          ...(selectedVideoDeviceId ? { deviceId: { exact: selectedVideoDeviceId } } : { facingMode: 'environment' })
+        }
+      };
+
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      streamRef.current = stream;
+      if (videoRef.current) {
+        videoRef.current.srcObject = stream;
+      }
+      setCameraPermission('granted');
+      setCameraEnabled(true);
+      await loadVideoDevices();
+    } catch (error) {
+      console.error('Error accessing camera:', error);
+      setCameraPermission('denied');
+      setMessage('Camera permission denied or not available');
+    }
+  };
+
+  const stopCamera = () => {
+    if (streamRef.current) {
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
+    }
+    setCameraEnabled(false);
+  };
+
+  // QR Code scanning loop
+  useEffect(() => {
+    if (!cameraEnabled || !videoRef.current || !canvasRef.current) return;
+
+    const interval = setInterval(() => {
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+      
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        const ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        
+        const code = jsQR(imageData.data, imageData.width, imageData.height);
+        
+        if (code && code.data) {
+          // Extract serial number from QR code
+          const detectedCode = code.data.includes('/product/') 
+            ? code.data.split('/product/')[1] 
+            : code.data;
+          
+          setScanCode(detectedCode);
+          setMessage(`QR Code detected: ${detectedCode}`);
+        }
+      }
+    }, 200);
+
+    return () => clearInterval(interval);
+  }, [cameraEnabled]);
+
+  // Auto-submit scan when code is detected and branch is selected
+  useEffect(() => {
+    if (scanCode && selectedBranch && cameraEnabled) {
+      const timer = setTimeout(() => {
+        handleScanDetected();
+      }, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [scanCode]);
 
   const fetchBranches = async () => {
     try {
@@ -55,7 +159,14 @@ export default function ProductScanner() {
 
   const handleScan = async (e) => {
     e.preventDefault();
-    
+    await processScan();
+  };
+
+  const handleScanDetected = async () => {
+    await processScan();
+  };
+
+  const processScan = async () => {
     if (!scanCode.trim() || !selectedBranch) {
       setMessage('Please select a branch and scan a product');
       return;
@@ -192,23 +303,79 @@ export default function ProductScanner() {
         </div>
 
         {selectedBranch && (
-          <form onSubmit={handleScan} className="scan-form">
-            <div className="scan-input-group">
-              <label>Scan QR Code or Barcode *</label>
-              <input
-                ref={scanInputRef}
-                type="text"
-                value={scanCode}
-                onChange={(e) => setScanCode(e.target.value)}
-                placeholder="Point scanner here..."
-                autoFocus
-                disabled={loading}
-              />
-              <button type="submit" className="btn btn-scan" disabled={loading}>
-                {loading ? 'Scanning...' : 'Scan'}
-              </button>
+          <>
+            <div className="camera-controls">
+              <div className="camera-selector">
+                <label>Camera</label>
+                <select
+                  value={selectedVideoDeviceId}
+                  onChange={(e) => setSelectedVideoDeviceId(e.target.value)}
+                  disabled={cameraEnabled}
+                >
+                  {videoDevices.length === 0 && (
+                    <option value="">No cameras detected yet</option>
+                  )}
+                  {videoDevices.map((device) => (
+                    <option key={device.deviceId} value={device.deviceId}>
+                      {device.label || `Camera ${device.deviceId.substr(0, 8)}`}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {!cameraEnabled ? (
+                <button 
+                  type="button"
+                  className="btn btn-primary camera-btn"
+                  onClick={startCamera}
+                >
+                  📷 Enable Camera Scan
+                </button>
+              ) : (
+                <button 
+                  type="button"
+                  className="btn btn-danger camera-btn"
+                  onClick={stopCamera}
+                >
+                  ❌ Disable Camera
+                </button>
+              )}
             </div>
-          </form>
+
+            {cameraEnabled && (
+              <div className="camera-container">
+                <video
+                  ref={videoRef}
+                  autoPlay
+                  playsInline
+                  className="camera-feed"
+                  style={{ width: '100%', maxHeight: '400px', borderRadius: '8px' }}
+                />
+                <canvas ref={canvasRef} style={{ display: 'none' }} />
+                <div className="scan-hint">Point camera at QR code...</div>
+              </div>
+            )}
+
+            <form onSubmit={handleScan} className="scan-form">
+              <div className="scan-input-group">
+                <label>Scan QR Code or Barcode * {cameraEnabled && '(Auto-detected)'}</label>
+                <input
+                  ref={scanInputRef}
+                  type="text"
+                  value={scanCode}
+                  onChange={(e) => setScanCode(e.target.value)}
+                  placeholder={cameraEnabled ? "Camera active - point at QR code..." : "Point scanner here or enter manually..."}
+                  autoFocus={!cameraEnabled}
+                  disabled={loading || cameraEnabled}
+                />
+                {!cameraEnabled && (
+                  <button type="submit" className="btn btn-scan" disabled={loading}>
+                    {loading ? 'Scanning...' : 'Scan'}
+                  </button>
+                )}
+              </div>
+            </form>
+          </>
         )}
       </div>
 
