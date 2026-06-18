@@ -22,6 +22,36 @@ export default function ProductScanner() {
     taxPercent: '0',
     amountPaid: ''
   });
+  const locale = navigator.language || 'en-US';
+  const regionCurrencyMap = {
+    US: 'USD',
+    PH: 'PHP',
+    GB: 'GBP',
+    CA: 'CAD',
+    AU: 'AUD',
+    EU: 'EUR',
+    DE: 'EUR',
+    FR: 'EUR',
+    JP: 'JPY',
+    CN: 'CNY',
+    IN: 'INR'
+  };
+  const currencyCode = regionCurrencyMap[(locale.split('-')[1] || '').toUpperCase()] || 'USD';
+  const formatCurrency = (value) => {
+    const amount = Number(value) || 0;
+    return new Intl.NumberFormat(locale, {
+      style: 'currency',
+      currency: currencyCode,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2
+    }).format(amount);
+  };
+  const currencySymbol = new Intl.NumberFormat(locale, {
+    style: 'currency',
+    currency: currencyCode,
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0
+  }).formatToParts(0).find(part => part.type === 'currency')?.value || currencyCode;
   const [message, setMessage] = useState('');
   const [sales, setSales] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -551,7 +581,7 @@ export default function ProductScanner() {
                       }}
                     >
                       <span className="match-name">{product.productName} ({product.serialNumber})</span>
-                      <span className="match-price">₱{product.sellingPrice || 0}</span>
+                      <span className="match-price">{formatCurrency(product.sellingPrice || 0)}</span>
                     </button>
                   ))}
                 </div>
@@ -569,8 +599,8 @@ export default function ProductScanner() {
             <div><strong>Brand:</strong> {scannedProduct.brand}</div>
             <div><strong>Serial:</strong> {scannedProduct.serialNumber}</div>
             <div><strong>Available:</strong> {scannedProduct.currentQuantity} units</div>
-            <div><strong>Selling Price:</strong> ₱{scannedProduct.sellingPrice || 0}</div>
-            <div><strong>Cost Price:</strong> ₱{scannedProduct.costPrice || 0}</div>
+            <div><strong>Selling Price:</strong> {formatCurrency(scannedProduct.sellingPrice || 0)}</div>
+            <div><strong>Cost Price:</strong> {formatCurrency(scannedProduct.costPrice || 0)}</div>
           </div>
 
           <form onSubmit={handleCompleteSale} className="sale-form">
@@ -603,7 +633,7 @@ export default function ProductScanner() {
 
             <div className="form-row">
               <div className="form-group">
-                <label>Discount (₱)</label>
+                <label>Discount ({currencySymbol})</label>
                 <input
                   type="number"
                   name="discount"
@@ -644,10 +674,10 @@ export default function ProductScanner() {
                 const { subtotal, discountAmount, subtotalAfterDiscount, taxAmount, total } = calculatePOSValues();
                 return (
                   <>
-                    <div className="summary-row"><span>Subtotal:</span><strong>₱{subtotal.toFixed(2)}</strong></div>
-                    {discountAmount > 0 && <div className="summary-row discount"><span>Discount:</span><strong>-₱{discountAmount.toFixed(2)}</strong></div>}
-                    {taxAmount > 0 && <div className="summary-row tax"><span>Tax:</span><strong>+₱{taxAmount.toFixed(2)}</strong></div>}
-                    <div className="summary-row total"><span>Total Amount:</span><strong>₱{total.toFixed(2)}</strong></div>
+                    <div className="summary-row"><span>Subtotal:</span><strong>{formatCurrency(subtotal)}</strong></div>
+                    {discountAmount > 0 && <div className="summary-row discount"><span>Discount:</span><strong>-{formatCurrency(discountAmount)}</strong></div>}
+                    {taxAmount > 0 && <div className="summary-row tax"><span>Tax:</span><strong>+{formatCurrency(taxAmount)}</strong></div>}
+                    <div className="summary-row total"><span>Total Amount:</span><strong>{formatCurrency(total)}</strong></div>
                   </>
                 );
               })()}
@@ -706,7 +736,7 @@ export default function ProductScanner() {
                   const changeAmount = parseFloat(formData.amountPaid) - total;
                   return (
                     <div className={`change-display ${changeAmount >= 0 ? 'valid' : 'invalid'}`}>
-                      Change: ₱{changeAmount.toFixed(2)}
+                      Change: {formatCurrency(changeAmount)}
                     </div>
                   );
                 })()}
