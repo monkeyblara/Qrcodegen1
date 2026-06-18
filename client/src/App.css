@@ -39,8 +39,8 @@ body {
 }
 
 .app-logo {
-  height: 80px;
-  max-width: 100%;
+  height: clamp(100px, 12vw, 160px);
+  max-width: 220px;
   width: auto;
   object-fit: contain;
   opacity: 0.95;
