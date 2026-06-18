@@ -299,6 +299,7 @@ export default function ProductScanner() {
     setMessage('');
     setProductMatches([]);
     setScanCode('');
+    setFormData(prev => ({ ...prev, salePrice: '' }));
     
     // Auto-focus quantity field and scroll to form
     setTimeout(() => {
@@ -622,10 +623,11 @@ export default function ProductScanner() {
               <div className="form-group">
                 <label>Unit Price</label>
                 <input
-                  type="number"
+                  type="text"
                   name="salePrice"
                   value={formData.salePrice}
                   onChange={handleInputChange}
+                  inputMode="decimal"
                   step="0.01"
                   placeholder="Enter unit price"
                   required
