@@ -444,6 +444,16 @@ export default function ProductScanner() {
       return;
     }
 
+    if (!selectedBranch) {
+      setMessage('Please select a branch before completing sale');
+      return;
+    }
+
+    if (formData.salePrice === '' || isNaN(parseFloat(formData.salePrice))) {
+      setMessage('Please enter a valid unit price');
+      return;
+    }
+
     if (parseInt(formData.quantitySold) > scannedProduct.currentQuantity) {
       setMessage('Quantity exceeds available stock');
       return;
@@ -738,7 +748,7 @@ export default function ProductScanner() {
                   inputMode="decimal"
                   step="0.01"
                   placeholder="Enter unit price"
-                  required
+                />
                 />
               </div>
             </div>
