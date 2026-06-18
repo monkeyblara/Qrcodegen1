@@ -23,6 +23,13 @@ export default function ProductScanner() {
     taxPercent: '0',
     amountPaid: ''
   });
+  const [receiptTemplates, setReceiptTemplates] = useState([
+    { id: 'withLogo', name: 'With Logo' },
+    { id: 'simple', name: 'Simple' },
+    { id: 'compact', name: 'Compact' }
+  ]);
+  const [selectedReceiptTemplate, setSelectedReceiptTemplate] = useState('withLogo');
+  const [companyLogoUrl, setCompanyLogoUrl] = useState(localStorage.getItem('companyLogoUrl') || '');
   const locale = navigator.language || 'en-US';
   const regionCurrencyMap = {
     US: 'USD',
@@ -72,6 +79,40 @@ export default function ProductScanner() {
     fetchProducts();
     fetchSales();
     loadVideoDevices();
+    // load saved templates
+    try {
+      const saved = localStorage.getItem('receiptTemplates');
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setReceiptTemplates(parsed);
+          setSelectedReceiptTemplate(parsed[0].id);
+        }
+      }
+      const logo = localStorage.getItem('companyLogoUrl');
+      if (logo) setCompanyLogoUrl(logo);
+    } catch (err) {
+      console.warn('Error loading receipt templates', err);
+    }
+  }, []);
+
+  useEffect(() => {
+    const handler = (e) => {
+      if (!e.data) return;
+      if (e.data.type === 'receiptTemplatesUpdated') {
+        const templates = e.data.templates || [];
+        setReceiptTemplates(templates);
+        if (templates.length > 0) setSelectedReceiptTemplate(templates[0].id);
+        if (e.data.companyLogoUrl) setCompanyLogoUrl(e.data.companyLogoUrl);
+        try {
+          localStorage.setItem('receiptTemplates', JSON.stringify(templates));
+          localStorage.setItem('companyLogoUrl', e.data.companyLogoUrl || '');
+        } catch (err) {}
+      }
+    };
+
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
   }, []);
 
   useEffect(() => {
@@ -449,10 +490,17 @@ export default function ProductScanner() {
 
       const printReceipt = (data) => {
         const saleInfo = data || salePayload;
-        const html = `
+        // build receipt HTML depending on selected template
+        let logoHtml = '';
+        if (companyLogoUrl && selectedReceiptTemplate !== 'compact') {
+          logoHtml = `<div style="text-align:center;margin-bottom:10px"><img src="${companyLogoUrl}" style="max-width:160px;max-height:80px"/></div>`;
+        }
+
+        const simpleLayout = `
           <html><head><title>Receipt</title>
-          <style>body{font-family:Arial;padding:20px}h2{text-align:center}.line{display:flex;justify-content:space-between}</style>
+            <style>body{font-family:Arial;padding:20px}h2{text-align:center}.line{display:flex;justify-content:space-between}</style>
           </head><body>
+            ${logoHtml}
             <h2>Receipt</h2>
             <div class="line"><strong>Product:</strong><span>${scannedProduct.productName}</span></div>
             <div class="line"><strong>Serial:</strong><span>${scannedProduct.serialNumber}</span></div>
@@ -463,11 +511,20 @@ export default function ProductScanner() {
             <div style="margin-top:20px;text-align:center">Thank you!</div>
           </body></html>`;
 
+        const compactLayout = `
+          <html><head><title>Receipt</title>
+            <style>body{font-family:Arial;padding:10px;font-size:12px}.line{display:flex;justify-content:space-between}</style>
+          </head><body>
+            <div class="line"><strong>${scannedProduct.productName}</strong><span>${saleInfo.quantitySold} x ${formatCurrency(saleInfo.salePrice)}</span></div>
+            <hr/>
+            <div class="line"><strong>Total</strong><span>${formatCurrency(saleInfo.totalAmount)}</span></div>
+            <div style="margin-top:10px;text-align:center">Thank you!</div>
+          </body></html>`;
+
+        const html = selectedReceiptTemplate === 'compact' ? compactLayout : simpleLayout;
+
         const w = window.open('', '_blank', 'width=400,height=600');
-        if (!w) {
-          setMessage('Unable to open print window (popup blocked).');
-          return;
-        }
+        if (!w) { setMessage('Unable to open print window (popup blocked).'); return; }
         w.document.open();
         w.document.write(html);
         w.document.close();
@@ -811,6 +868,57 @@ export default function ProductScanner() {
                 <option value="save_and_print">Save and print</option>
                 <option value="print_before_save">Print before save</option>
               </select>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Receipt Template</label>
+                <select value={selectedReceiptTemplate} onChange={(e) => setSelectedReceiptTemplate(e.target.value)}>
+                  {receiptTemplates.map(t => (
+                    <option key={t.id} value={t.id}>{t.name}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label>&nbsp;</label>
+                <button type="button" className="btn btn-secondary" onClick={() => {
+                  // open a simple template designer window
+                  const w = window.open('', '_blank', 'width=600,height=500');
+                  if (!w) { setMessage('Unable to open template designer (popup blocked).'); return; }
+                  const initTemplates = JSON.stringify(receiptTemplates || []);
+                  const initLogo = companyLogoUrl || '';
+                  w.document.write(`
+                    <html><head><title>Receipt Designer</title>
+                      <style>body{font-family:Arial;padding:20px}label{display:block;margin-top:10px}li{margin:6px 0}</style>
+                    </head><body>
+                      <h2>Receipt Designer</h2>
+                      <label>Company Logo URL</label>
+                      <input id="logo" style="width:100%" value="${initLogo}" />
+                      <label>Templates (name,id) — edit names or remove</label>
+                      <ul id="tpls"></ul>
+                      <button id="add">Add Template</button>
+                      <div style="margin-top:12px"><button id="save">Save</button> <button id="close">Close</button></div>
+                      <script>
+                        const openerRef = window.opener;
+                        let templates = ${initTemplates};
+                        const tplsEl = document.getElementById('tpls');
+                        function render(){ tplEls = templates.map((t, i) => `<li data-i="${i}"><input data-i="${i}" class="name" value="${t.name}"/> <input data-i="${i}" class="id" value="${t.id}"/> <button data-i="${i}" class="remove">Remove</button></li>`).join(''); tplsEl.innerHTML = tplEls; document.querySelectorAll('.remove').forEach(b=>b.onclick=(e)=>{ const i=parseInt(e.target.dataset.i); templates.splice(i,1); render(); }); document.querySelectorAll('.name').forEach(inp=>inp.oninput=(e)=>{ templates[parseInt(e.target.dataset.i)].name = e.target.value; }); document.querySelectorAll('.id').forEach(inp=>inp.oninput=(e)=>{ templates[parseInt(e.target.dataset.i)].id = e.target.value; }); }
+                        render();
+                        document.getElementById('add').onclick = ()=>{ templates.push({ id: 'tpl'+Date.now(), name: 'New Template' }); render(); };
+                        document.getElementById('save').onclick = ()=>{
+                          const logo = document.getElementById('logo').value || '';
+                          if(openerRef) openerRef.postMessage({ type: 'receiptTemplatesUpdated', templates, companyLogoUrl: logo }, '*');
+                          localStorage.setItem('receiptTemplates', JSON.stringify(templates));
+                          localStorage.setItem('companyLogoUrl', logo);
+                          window.close();
+                        };
+                        document.getElementById('close').onclick = ()=>window.close();
+                      </script>
+                    </body></html>
+                  `);
+                }}>Design Print</button>
+              </div>
             </div>
 
             <div className="form-actions">
