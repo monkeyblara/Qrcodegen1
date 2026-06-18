@@ -6,6 +6,7 @@ export default function ProductScanner() {
   const [branches, setBranches] = useState([]);
   const [selectedBranch, setSelectedBranch] = useState('');
   const [scanCode, setScanCode] = useState('');
+  const [products, setProducts] = useState([]);
   const [scannedProduct, setScannedProduct] = useState(null);
   const [productMatches, setProductMatches] = useState([]);
   const [formData, setFormData] = useState({
@@ -31,9 +32,26 @@ export default function ProductScanner() {
 
   useEffect(() => {
     fetchBranches();
+    fetchProducts();
     fetchSales();
     loadVideoDevices();
   }, []);
+
+  useEffect(() => {
+    if (!scanCode.trim()) {
+      setProductMatches([]);
+      return;
+    }
+
+    const lowerTerm = scanCode.trim().toLowerCase();
+    const matches = products.filter(p =>
+      p.serialNumber?.toLowerCase().includes(lowerTerm) ||
+      p.productName?.toLowerCase().includes(lowerTerm) ||
+      (p.brand && p.brand.toLowerCase().includes(lowerTerm))
+    );
+
+    setProductMatches(matches.slice(0, 10));
+  }, [scanCode, products]);
 
   const loadVideoDevices = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.enumerateDevices) {
@@ -192,6 +210,18 @@ export default function ProductScanner() {
       setBranches(data);
     } catch (error) {
       console.error('Error fetching branches:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const response = await fetch('/api/products', {
+        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+      });
+      const data = await response.json();
+      setProducts(data);
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
   };
 
@@ -446,13 +476,13 @@ export default function ProductScanner() {
 
             <form onSubmit={handleScan} className="scan-form">
               <div className="scan-input-group">
-                <label>Scan QR Code / Barcode or enter serial / product name *</label>
+                <label>Type serial / name or scan QR/Barcode *</label>
                 <input
                   ref={scanInputRef}
                   type="text"
                   value={scanCode}
                   onChange={(e) => setScanCode(e.target.value)}
-                  placeholder={cameraEnabled ? "Camera active - point at QR code or type manually..." : "Enter serial or product name..."}
+                  placeholder={cameraEnabled ? "Camera active - point at QR code or type manually..." : "Type serial or product name..."}
                   autoFocus={!cameraEnabled}
                   disabled={loading}
                 />
@@ -461,27 +491,30 @@ export default function ProductScanner() {
                 </button>
               </div>
             </form>
+
+            {productMatches.length > 0 && (
+              <div className="product-matches">
+                <h3>Matched Products</h3>
+                <div className="match-list">
+                  {productMatches.map(product => (
+                    <button
+                      key={product._id}
+                      type="button"
+                      className="match-item btn btn-secondary"
+                      onClick={() => {
+                        setScanCode(product.serialNumber);
+                        loadProductFromInventory(product);
+                      }}
+                    >
+                      {product.productName} ({product.serialNumber})
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </>
         )}
       </div>
-
-      {productMatches.length > 0 && (
-        <div className="product-matches">
-          <h3>Matched Products</h3>
-          <div className="match-list">
-            {productMatches.map(product => (
-              <button
-                key={product._id}
-                type="button"
-                className="match-item btn btn-secondary"
-                onClick={() => loadProductFromInventory(product)}
-              >
-                {product.productName} ({product.serialNumber})
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
 
       {scannedProduct && (
         <div className="product-details">
