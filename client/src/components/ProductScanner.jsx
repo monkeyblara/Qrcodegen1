@@ -16,6 +16,7 @@ export default function ProductScanner() {
     customerName: '',
     salePrice: '',
     paymentMethod: 'cash',
+    postSaleAction: 'save_only',
     soldBy: '',
     discount: '',
     discountPercent: '',
@@ -370,7 +371,7 @@ export default function ProductScanner() {
 
   const calculatePOSValues = () => {
     const qty = parseInt(formData.quantitySold) || 0;
-    const price = parseFloat(formData.salePrice) || 0;
+    const price = formData.salePrice === '' ? 0 : parseFloat(formData.salePrice);
     const subtotal = qty * price;
     
     let discountAmount = 0;
@@ -409,50 +410,100 @@ export default function ProductScanner() {
 
     try {
       const { total } = calculatePOSValues();
-      const response = await fetch('/api/sales', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}`
-        },
-        body: JSON.stringify({
-          productId: scannedProduct._id,
-          branchId: selectedBranch,
-          serialNumber: scannedProduct.serialNumber,
-          scanCode: scannedProduct.serialNumber,
-          quantitySold: parseInt(formData.quantitySold),
-          customerName: formData.customerName,
-          salePrice: parseFloat(formData.salePrice) || 0,
-          totalAmount: total,
-          paymentMethod: formData.paymentMethod,
-          discount: parseFloat(formData.discount) || 0,
-          discountPercent: parseFloat(formData.discountPercent) || 0,
-          taxPercent: parseFloat(formData.taxPercent) || 0,
-          amountPaid: parseFloat(formData.amountPaid) || 0,
-          soldBy: formData.soldBy,
-          saleDate: new Date()
-        })
-      });
 
-      if (!response.ok) {
-        const error = await response.json();
-        throw new Error(error.error);
+      const salePayload = {
+        productId: scannedProduct._id,
+        branchId: selectedBranch,
+        serialNumber: scannedProduct.serialNumber,
+        scanCode: scannedProduct.serialNumber,
+        quantitySold: parseInt(formData.quantitySold),
+        customerName: formData.customerName,
+        salePrice: formData.salePrice === '' ? 0 : parseFloat(formData.salePrice),
+        totalAmount: total,
+        paymentMethod: formData.paymentMethod,
+        discount: parseFloat(formData.discount) || 0,
+        discountPercent: parseFloat(formData.discountPercent) || 0,
+        taxPercent: parseFloat(formData.taxPercent) || 0,
+        amountPaid: parseFloat(formData.amountPaid) || 0,
+        soldBy: formData.soldBy,
+        saleDate: new Date()
+      };
+
+      const doSave = async () => {
+        const response = await fetch('/api/sales', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${localStorage.getItem('authToken')}`
+          },
+          body: JSON.stringify(salePayload)
+        });
+
+        if (!response.ok) {
+          const err = await response.json();
+          throw new Error(err.error || 'Failed to save sale');
+        }
+
+        return response.json();
+      };
+
+      const printReceipt = (data) => {
+        const saleInfo = data || salePayload;
+        const html = `
+          <html><head><title>Receipt</title>
+          <style>body{font-family:Arial;padding:20px}h2{text-align:center}.line{display:flex;justify-content:space-between}</style>
+          </head><body>
+            <h2>Receipt</h2>
+            <div class="line"><strong>Product:</strong><span>${scannedProduct.productName}</span></div>
+            <div class="line"><strong>Serial:</strong><span>${scannedProduct.serialNumber}</span></div>
+            <div class="line"><strong>Qty:</strong><span>${saleInfo.quantitySold}</span></div>
+            <div class="line"><strong>Unit:</strong><span>${formatCurrency(saleInfo.salePrice)}</span></div>
+            <div class="line"><strong>Total:</strong><span>${formatCurrency(saleInfo.totalAmount)}</span></div>
+            <div class="line"><strong>Payment:</strong><span>${saleInfo.paymentMethod}</span></div>
+            <div style="margin-top:20px;text-align:center">Thank you!</div>
+          </body></html>`;
+
+        const w = window.open('', '_blank', 'width=400,height=600');
+        if (!w) {
+          setMessage('Unable to open print window (popup blocked).');
+          return;
+        }
+        w.document.open();
+        w.document.write(html);
+        w.document.close();
+        w.focus();
+        w.print();
+      };
+
+      if (formData.postSaleAction === 'print_before_save') {
+        printReceipt(salePayload);
+        await doSave();
+        setMessage('Sale saved and receipt printed.');
+      } else if (formData.postSaleAction === 'save_and_print') {
+        const saved = await doSave();
+        // saved may contain sale property
+        printReceipt((saved && saved.sale) ? saved.sale : saved);
+        setMessage('Sale recorded and receipt printed.');
+      } else {
+        await doSave();
+        setMessage('Sale recorded successfully!');
       }
 
-      setMessage('Sale recorded successfully!');
       setFormData({
         quantitySold: '',
         customerName: '',
         salePrice: '',
         paymentMethod: 'cash',
-        soldBy: ''
+        postSaleAction: 'save_only',
+        soldBy: '',
+        discount: '',
+        discountPercent: '',
+        taxPercent: '0',
+        amountPaid: ''
       });
       setScannedProduct(null);
       fetchSales();
-      
-      if (scanInputRef.current) {
-        scanInputRef.current.focus();
-      }
+      if (scanInputRef.current) scanInputRef.current.focus();
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     }
@@ -748,6 +799,19 @@ export default function ProductScanner() {
                 })()}
               </div>
             )}
+
+            <div className="form-group full-width">
+              <label>After Sale</label>
+              <select
+                name="postSaleAction"
+                value={formData.postSaleAction}
+                onChange={handleInputChange}
+              >
+                <option value="save_only">Save only</option>
+                <option value="save_and_print">Save and print</option>
+                <option value="print_before_save">Print before save</option>
+              </select>
+            </div>
 
             <div className="form-actions">
               <button type="submit" className="btn btn-success">Complete Sale</button>
