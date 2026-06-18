@@ -369,7 +369,7 @@ export default function ProductScanner() {
 
   const calculatePOSValues = () => {
     const qty = parseInt(formData.quantitySold) || 0;
-    const price = parseFloat(formData.salePrice) || scannedProduct?.sellingPrice || 0;
+    const price = parseFloat(formData.salePrice) || 0;
     const subtotal = qty * price;
     
     let discountAmount = 0;
@@ -421,7 +421,7 @@ export default function ProductScanner() {
           scanCode: scannedProduct.serialNumber,
           quantitySold: parseInt(formData.quantitySold),
           customerName: formData.customerName,
-          salePrice: parseFloat(formData.salePrice) || scannedProduct.sellingPrice || 0,
+          salePrice: parseFloat(formData.salePrice) || 0,
           totalAmount: total,
           paymentMethod: formData.paymentMethod,
           discount: parseFloat(formData.discount) || 0,
@@ -624,9 +624,11 @@ export default function ProductScanner() {
                 <input
                   type="number"
                   name="salePrice"
-                  value={formData.salePrice || scannedProduct.sellingPrice || 0}
+                  value={formData.salePrice}
                   onChange={handleInputChange}
                   step="0.01"
+                  placeholder="Enter unit price"
+                  required
                 />
               </div>
             </div>
