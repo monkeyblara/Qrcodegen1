@@ -14,7 +14,11 @@ export default function ProductScanner() {
     customerName: '',
     salePrice: '',
     paymentMethod: 'cash',
-    soldBy: ''
+    soldBy: '',
+    discount: '',
+    discountPercent: '',
+    taxPercent: '0',
+    amountPaid: ''
   });
   const [message, setMessage] = useState('');
   const [sales, setSales] = useState([]);
@@ -320,6 +324,27 @@ export default function ProductScanner() {
     }
   };
 
+  const calculatePOSValues = () => {
+    const qty = parseInt(formData.quantitySold) || 0;
+    const price = parseFloat(formData.salePrice) || scannedProduct?.sellingPrice || 0;
+    const subtotal = qty * price;
+    
+    let discountAmount = 0;
+    if (formData.discountPercent) {
+      discountAmount = subtotal * (parseFloat(formData.discountPercent) / 100);
+    } else if (formData.discount) {
+      discountAmount = parseFloat(formData.discount);
+    }
+    
+    const subtotalAfterDiscount = subtotal - discountAmount;
+    const taxPercent = parseFloat(formData.taxPercent) || 0;
+    const taxAmount = subtotalAfterDiscount * (taxPercent / 100);
+    const total = subtotalAfterDiscount + taxAmount;
+    const change = parseFloat(formData.amountPaid) - total;
+    
+    return { subtotal, discountAmount, subtotalAfterDiscount, taxAmount, total, change };
+  };
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -339,6 +364,7 @@ export default function ProductScanner() {
     }
 
     try {
+      const { total } = calculatePOSValues();
       const response = await fetch('/api/sales', {
         method: 'POST',
         headers: {
@@ -352,8 +378,13 @@ export default function ProductScanner() {
           scanCode: scannedProduct.serialNumber,
           quantitySold: parseInt(formData.quantitySold),
           customerName: formData.customerName,
-          salePrice: formData.salePrice ? parseFloat(formData.salePrice) : null,
+          salePrice: parseFloat(formData.salePrice) || scannedProduct.sellingPrice || 0,
+          totalAmount: total,
           paymentMethod: formData.paymentMethod,
+          discount: parseFloat(formData.discount) || 0,
+          discountPercent: parseFloat(formData.discountPercent) || 0,
+          taxPercent: parseFloat(formData.taxPercent) || 0,
+          amountPaid: parseFloat(formData.amountPaid) || 0,
           soldBy: formData.soldBy,
           saleDate: new Date()
         })
@@ -506,7 +537,8 @@ export default function ProductScanner() {
                         loadProductFromInventory(product);
                       }}
                     >
-                      {product.productName} ({product.serialNumber})
+                      <span className="match-name">{product.productName} ({product.serialNumber})</span>
+                      <span className="match-price">₱{product.sellingPrice || 0}</span>
                     </button>
                   ))}
                 </div>
@@ -524,6 +556,8 @@ export default function ProductScanner() {
             <div><strong>Brand:</strong> {scannedProduct.brand}</div>
             <div><strong>Serial:</strong> {scannedProduct.serialNumber}</div>
             <div><strong>Available:</strong> {scannedProduct.currentQuantity} units</div>
+            <div><strong>Selling Price:</strong> ₱{scannedProduct.sellingPrice || 0}</div>
+            <div><strong>Cost Price:</strong> ₱{scannedProduct.costPrice || 0}</div>
           </div>
 
           <form onSubmit={handleCompleteSale} className="sale-form">
@@ -542,15 +576,67 @@ export default function ProductScanner() {
               </div>
 
               <div className="form-group">
-                <label>Sale Price</label>
+                <label>Unit Price</label>
                 <input
                   type="number"
                   name="salePrice"
-                  value={formData.salePrice}
+                  value={formData.salePrice || scannedProduct.sellingPrice || 0}
                   onChange={handleInputChange}
                   step="0.01"
                 />
               </div>
+            </div>
+
+            <div className="form-row">
+              <div className="form-group">
+                <label>Discount (₱)</label>
+                <input
+                  type="number"
+                  name="discount"
+                  value={formData.discount}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  placeholder="Fixed amount"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Discount (%)</label>
+                <input
+                  type="number"
+                  name="discountPercent"
+                  value={formData.discountPercent}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  placeholder="Percentage"
+                />
+              </div>
+
+              <div className="form-group">
+                <label>Tax (%)</label>
+                <input
+                  type="number"
+                  name="taxPercent"
+                  value={formData.taxPercent}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  placeholder="Tax percentage"
+                />
+              </div>
+            </div>
+
+            <div className="pos-summary">
+              {(() => {
+                const { subtotal, discountAmount, subtotalAfterDiscount, taxAmount, total } = calculatePOSValues();
+                return (
+                  <>
+                    <div className="summary-row"><span>Subtotal:</span><strong>₱{subtotal.toFixed(2)}</strong></div>
+                    {discountAmount > 0 && <div className="summary-row discount"><span>Discount:</span><strong>-₱{discountAmount.toFixed(2)}</strong></div>}
+                    {taxAmount > 0 && <div className="summary-row tax"><span>Tax:</span><strong>+₱{taxAmount.toFixed(2)}</strong></div>}
+                    <div className="summary-row total"><span>Total Amount:</span><strong>₱{total.toFixed(2)}</strong></div>
+                  </>
+                );
+              })()}
             </div>
 
             <div className="form-row">
@@ -589,6 +675,29 @@ export default function ProductScanner() {
                 <option value="cheque">Cheque</option>
               </select>
             </div>
+
+            {formData.paymentMethod === 'cash' && (
+              <div className="form-group full-width">
+                <label>Amount Paid</label>
+                <input
+                  type="number"
+                  name="amountPaid"
+                  value={formData.amountPaid}
+                  onChange={handleInputChange}
+                  step="0.01"
+                  placeholder="Cash amount received"
+                />
+                {formData.amountPaid && (() => {
+                  const { total, change } = calculatePOSValues();
+                  const changeAmount = parseFloat(formData.amountPaid) - total;
+                  return (
+                    <div className={`change-display ${changeAmount >= 0 ? 'valid' : 'invalid'}`}>
+                      Change: ₱{changeAmount.toFixed(2)}
+                    </div>
+                  );
+                })()}
+              </div>
+            )}
 
             <div className="form-actions">
               <button type="submit" className="btn btn-success">Complete Sale</button>

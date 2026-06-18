@@ -104,7 +104,89 @@
   background: #e9f2ff;
 }
 
-.scan-input-group input {
+.match-name {
+  flex: 1;
+}
+
+.match-price {
+  font-weight: 600;
+  color: #28a745;
+  margin-left: 10px;
+  white-space: nowrap;
+}
+
+.pos-summary {
+  background: #f0f8ff;
+  border: 2px solid #007bff;
+  border-radius: 4px;
+  padding: 15px;
+  margin: 15px 0;
+  font-size: 15px;
+}
+
+.summary-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 0;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.summary-row:last-child {
+  border-bottom: none;
+}
+
+.summary-row.discount {
+  color: #dc3545;
+}
+
+.summary-row.tax {
+  color: #fd7e14;
+}
+
+.summary-row.total {
+  background: #e7f3ff;
+  padding: 10px;
+  margin: 0 -15px -15px -15px;
+  border-radius: 0 0 4px 4px;
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.summary-row strong {
+  font-weight: 600;
+}
+
+.change-display {
+  margin-top: 10px;
+  padding: 10px;
+  border-radius: 4px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.change-display.valid {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.change-display.invalid {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
+
+.btn-secondary:hover {
+  background: #5a6268;
+}
+
+.message {
   flex: 1;
   min-width: 250px;
   padding: 10px;

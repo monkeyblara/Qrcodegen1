@@ -25,6 +25,8 @@ const productSchema = new mongoose.Schema({
   paintType: { type: String, required: true },
   quantity: { type: String, required: true },
   expiryDate: { type: String, required: true },
+  costPrice: { type: Number, default: 0 },
+  sellingPrice: { type: Number, default: 0 },
   qrCode: String,
   createdAt: { type: Date, default: Date.now },
   updatedAt: { type: Date, default: Date.now }
