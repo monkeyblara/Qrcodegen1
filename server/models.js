@@ -147,7 +147,7 @@ const productSaleSchema = new mongoose.Schema({
   customerName: { type: String },
   salePrice: { type: Number },
   totalAmount: { type: Number },
-  paymentMethod: { type: String, enum: ['cash', 'card', 'transfer', 'cheque'], default: 'cash' },
+  paymentMethod: { type: String, enum: ['cash', 'swipe', 'zig', 'card', 'transfer', 'cheque'], default: 'cash' },
   soldBy: { type: String, required: true },
   notes: { type: String },
   saleDate: { type: Date, required: true },

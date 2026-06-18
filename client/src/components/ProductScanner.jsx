@@ -714,6 +714,8 @@ export default function ProductScanner() {
                 onChange={handleInputChange}
               >
                 <option value="cash">Cash</option>
+                <option value="swipe">Swipe</option>
+                <option value="zig">ZIG</option>
                 <option value="card">Card</option>
                 <option value="transfer">Bank Transfer</option>
                 <option value="cheque">Cheque</option>
