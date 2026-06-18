@@ -9,6 +9,8 @@ export default function ProductScanner() {
   const [products, setProducts] = useState([]);
   const [scannedProduct, setScannedProduct] = useState(null);
   const [productMatches, setProductMatches] = useState([]);
+  const quantityInputRef = useRef(null);
+  const posFormRef = useRef(null);
   const [formData, setFormData] = useState({
     quantitySold: '',
     customerName: '',
@@ -264,9 +266,20 @@ export default function ProductScanner() {
 
     const inventory = await inventoryResponse.json();
     setScannedProduct({ ...product, ...inventory });
-    setMessage('Product found! Enter sale details below');
+    setMessage('');
     setProductMatches([]);
     setScanCode('');
+    
+    // Auto-focus quantity field and scroll to form
+    setTimeout(() => {
+      if (quantityInputRef.current) {
+        quantityInputRef.current.focus();
+        quantityInputRef.current.select();
+      }
+      if (posFormRef.current) {
+        posFormRef.current.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 100);
   };
 
   const processScan = async () => {
@@ -549,7 +562,7 @@ export default function ProductScanner() {
       </div>
 
       {scannedProduct && (
-        <div className="product-details">
+        <div className="product-details" ref={posFormRef}>
           <h3>Product Details</h3>
           <div className="details-grid">
             <div><strong>Product:</strong> {scannedProduct.productName}</div>
@@ -565,6 +578,7 @@ export default function ProductScanner() {
               <div className="form-group">
                 <label>Quantity Sold *</label>
                 <input
+                  ref={quantityInputRef}
                   type="number"
                   name="quantitySold"
                   value={formData.quantitySold}
