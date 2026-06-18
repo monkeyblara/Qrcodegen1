@@ -6,8 +6,9 @@ const { ProductSale, BranchInventory } = require('../models');
 router.post('/', async (req, res) => {
   try {
     const { productId, branchId, serialNumber, scanCode, quantitySold, customerName, salePrice, paymentMethod, soldBy, notes, saleDate } = req.body;
+    const scanCodeValue = scanCode || serialNumber;
 
-    if (!productId || !branchId || !serialNumber || !scanCode || !quantitySold || !soldBy) {
+    if (!productId || !branchId || !serialNumber || !quantitySold || !soldBy) {
       return res.status(400).json({ error: 'All required fields must be provided' });
     }
 
@@ -30,7 +31,7 @@ router.post('/', async (req, res) => {
       productId,
       branchId,
       serialNumber,
-      scanCode,
+      scanCode: scanCodeValue,
       quantitySold,
       customerName,
       salePrice,

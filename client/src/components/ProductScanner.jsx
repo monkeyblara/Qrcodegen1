@@ -7,6 +7,7 @@ export default function ProductScanner() {
   const [selectedBranch, setSelectedBranch] = useState('');
   const [scanCode, setScanCode] = useState('');
   const [scannedProduct, setScannedProduct] = useState(null);
+  const [productMatches, setProductMatches] = useState([]);
   const [formData, setFormData] = useState({
     quantitySold: '',
     customerName: '',
@@ -215,49 +216,77 @@ export default function ProductScanner() {
     await processScan();
   };
 
+  const loadProductFromInventory = async (product) => {
+    const inventoryResponse = await fetch(`/api/inventory/branch/${selectedBranch}/product/${product._id}`, {
+      headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
+    });
+
+    if (!inventoryResponse.ok) {
+      setMessage('This product is not available in selected branch');
+      setProductMatches([]);
+      setScannedProduct(null);
+      return;
+    }
+
+    const inventory = await inventoryResponse.json();
+    setScannedProduct({ ...product, ...inventory });
+    setMessage('Product found! Enter sale details below');
+    setProductMatches([]);
+    setScanCode('');
+  };
+
   const processScan = async () => {
     if (!scanCode.trim() || !selectedBranch) {
-      setMessage('Please select a branch and scan a product');
+      setMessage('Please select a branch and enter a product serial or name');
       return;
     }
 
     setLoading(true);
+    setProductMatches([]);
     try {
-      // Try to find product by serial number (from QR/barcode)
       const productsResponse = await fetch('/api/products', {
         headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
       });
       const products = await productsResponse.json();
-      
-      const product = products.find(p => p.serialNumber === scanCode);
-      
+      const searchTerm = scanCode.trim();
+      const lowerTerm = searchTerm.toLowerCase();
+
+      const exactMatch = products.find(p =>
+        p.serialNumber === searchTerm ||
+        p.productName.toLowerCase() === lowerTerm ||
+        (p.brand && p.brand.toLowerCase() === lowerTerm)
+      );
+
+      let product = exactMatch;
       if (!product) {
-        setMessage('Product not found with this QR/Barcode');
+        const fuzzyMatches = products.filter(p =>
+          p.serialNumber.toLowerCase() === lowerTerm ||
+          p.productName.toLowerCase().includes(lowerTerm) ||
+          (p.brand && p.brand.toLowerCase().includes(lowerTerm))
+        );
+
+        if (fuzzyMatches.length === 1) {
+          product = fuzzyMatches[0];
+        } else if (fuzzyMatches.length > 1) {
+          setMessage('Multiple products matched. Please select the correct product.');
+          setProductMatches(fuzzyMatches.slice(0, 10));
+          setScanCode('');
+          return;
+        }
+      }
+
+      if (!product) {
+        setMessage('Product not found. Enter a valid serial, product name, or scan the QR/Barcode.');
         setScanCode('');
         setScannedProduct(null);
         return;
       }
 
-      // Check inventory
-      const inventoryResponse = await fetch(`/api/inventory/branch/${selectedBranch}/product/${product._id}`, {
-        headers: { 'Authorization': `Bearer ${localStorage.getItem('authToken')}` }
-      });
-
-      if (!inventoryResponse.ok) {
-        setMessage('This product is not available in selected branch');
-        setScanCode('');
-        setScannedProduct(null);
-        return;
-      }
-
-      const inventory = await inventoryResponse.json();
-      setScannedProduct({ ...product, ...inventory });
-      setMessage('Product found! Enter sale details below');
+      await loadProductFromInventory(product);
     } catch (error) {
       setMessage(`Error: ${error.message}`);
     } finally {
       setLoading(false);
-      setScanCode('');
     }
   };
 
@@ -331,7 +360,7 @@ export default function ProductScanner() {
       {message && <div className="message">{message}</div>}
 
       <div className="scanner-section">
-        <h3>Scan Product</h3>
+        <h3>Scan or Enter Product</h3>
         
         <div className="branch-selector">
           <label>Select Branch *</label>
@@ -340,6 +369,7 @@ export default function ProductScanner() {
             onChange={(e) => {
               setSelectedBranch(e.target.value);
               setScannedProduct(null);
+              setProductMatches([]);
             }}
           >
             <option value="">-- Select Branch --</option>
@@ -416,26 +446,42 @@ export default function ProductScanner() {
 
             <form onSubmit={handleScan} className="scan-form">
               <div className="scan-input-group">
-                <label>Scan QR Code or Barcode * {cameraEnabled && '(Auto-detected)'}</label>
+                <label>Scan QR Code / Barcode or enter serial / product name *</label>
                 <input
                   ref={scanInputRef}
                   type="text"
                   value={scanCode}
                   onChange={(e) => setScanCode(e.target.value)}
-                  placeholder={cameraEnabled ? "Camera active - point at QR code..." : "Point scanner here or enter manually..."}
+                  placeholder={cameraEnabled ? "Camera active - point at QR code or type manually..." : "Enter serial or product name..."}
                   autoFocus={!cameraEnabled}
-                  disabled={loading || cameraEnabled}
+                  disabled={loading}
                 />
-                {!cameraEnabled && (
-                  <button type="submit" className="btn btn-scan" disabled={loading}>
-                    {loading ? 'Scanning...' : 'Scan'}
-                  </button>
-                )}
+                <button type="submit" className="btn btn-scan" disabled={loading}>
+                  {loading ? 'Searching...' : 'Find Product'}
+                </button>
               </div>
             </form>
           </>
         )}
       </div>
+
+      {productMatches.length > 0 && (
+        <div className="product-matches">
+          <h3>Matched Products</h3>
+          <div className="match-list">
+            {productMatches.map(product => (
+              <button
+                key={product._id}
+                type="button"
+                className="match-item btn btn-secondary"
+                onClick={() => loadProductFromInventory(product)}
+              >
+                {product.productName} ({product.serialNumber})
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
 
       {scannedProduct && (
         <div className="product-details">
